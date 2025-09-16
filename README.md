@@ -17,20 +17,21 @@ This section is for installing / building the app so as to test interactions and
 
 
 # 👨‍💻 Developers
-This section is focused for developers of the project. Feel free to change the code as you please even if you are not a one.
+This section is focused for developers of the project, feel free to change the code and experiment as you please.
 
 ### ⚙️ Build & Run
 This project uses docker to compile and build source code and [CPack](https://cmake.org/cmake/help/latest/manual/cpack.1.html#manual:cpack(1)) to deploy app for different OS.
 
 If you do not have docker and want to compile / build the project, check out [Docker installation](https://www.docker.com/get-started/) for compatibility.
 
-1. Clone this repository using this command (or use github interface): 
-    ```bash
-    git clone https://github.com/make-u-move-raw/CILAOS.git
-    ```
-2. Install dependencies :
-3. Build the app :
-4. Run the app 
+1. Clone the repository : `git clone https://github.com/make-u-move-raw/CILAOS.git`
+2. At root directory, build docker image : `docker build -t cilaos .` This step should be done only **once**.
+3. Run the app : `docker run --rm cilaos` (goes through build, test validation and run sequence)
+
+_Note that you can run individual commands for the project : type `docker run --rm cilaos ./run.sh help` to see all available commands_
+
+If you changed source code, to avoid mouting a new docker image, you can run `docker run --rm -v ${PWD}:/app cilaos ./docker_run.sh <command>` to avoid mouting another image.
+
 
 
 # TODO :
@@ -38,12 +39,17 @@ If you do not have docker and want to compile / build the project, check out [Do
 ### 📋 List and versions of libraries
 
 - [raylib](https://www.raylib.com/) 
+___
+
 ### 🧪 Running Tests
-This project uses [TO_DEFINE] to test features and every unit test **MUST** pass to merge feature, you can run tests with : `RUN_TEST_COMMAND`
+This project uses [Catch2 v2.13.0](https://github.com/catchorg/Catch2/blob/v2.13.0/single_include/catch2) to test features and every unit test **MUST** pass to merge feature and execute. You can run tests with  : `docker run --rm cilaos ./docker_run.sh test` note that this will build the project again.
+
+___
 
 ### 📖 Generating Documentation
 Documentation is automatically generated with [TO_DEFINE] use, to generate :#
 `GENERATE_DOC_COMMAND`
+___
 
 ### 💻 Development practices for the project
 
