@@ -8,8 +8,9 @@ build_project() {
     if [ -d "build" ]; then rm -rf build; fi
     mkdir -p build
     cd build
-    cmake ..
-    cmake --build .
+    
+    build-wrapper-linux-x86-64 --out-dir ../bw-output cmake ..
+    build-wrapper-linux-x86-64 --out-dir ../bw-output cmake --build .
     cd ..
 }
 
