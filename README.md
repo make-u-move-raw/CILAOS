@@ -30,7 +30,7 @@ If you do not have docker and want to compile / build the project, check out [Do
 
 _Note that you can run individual commands for the project : type `docker run --rm cilaos ./run.sh help` to see all available commands_
 
-If you changed source code, to avoid mouting a new docker image, you can run `docker run --rm -v ${PWD}:/app cilaos ./docker_run.sh <command>` to avoid mouting another image.
+If you changed source code, you can run `docker run --rm -v ${PWD}:/app cilaos ./docker_run.sh <command>` to avoid mouting another docker image.
 
 
 
