@@ -13,16 +13,9 @@ COPY . /app
 
 RUN chmod +x run.sh
 
-# Install curl and unzip for downloading build wrapper
-RUN apt-get update && apt-get install -y curl unzip && rm -rf /var/lib/apt/lists/*
-
-# Install build wrapper for sonarcloud code analysis
-RUN curl -L -o /tmp/build-wrapper.zip \
-    https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip && \
-    unzip /tmp/build-wrapper.zip -d /usr/local/bin/ && \
-    chmod +x /usr/local/bin/build-wrapper-linux-x86/build-wrapper-linux-x86-64 && \
-    ln -s /usr/local/bin/build-wrapper-linux-x86/build-wrapper-linux-x86-64 /usr/local/bin/build-wrapper-linux-x86-64 && \
-    rm /tmp/build-wrapper.zip
+# Build wrapper for sonarcloud analysis
+COPY tools/build-wrapper-linux-x86-64 /usr/local/bin/build-wrapper-linux-x86-64
+RUN chmod +x /usr/local/bin/build-wrapper-linux-x86-64
 
 # Execute run script by default
 CMD ["./run.sh", "run"]
