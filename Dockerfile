@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 COPY . /app
 
-RUN chmod +x docker_run.sh
+RUN chmod +x run.sh
 
 # Execute run script by default
 CMD ["./run.sh", "run"]
