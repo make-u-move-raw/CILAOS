@@ -1,14 +1,14 @@
 FROM ubuntu:22.04
 
 # Dependencies for code and other tools (cmake, doxygen...)
-RUN apt-get update && \
+RUN apt-get update && \ apt-get install -y --no-install-recommends \
     # Project source code
-    apt-get install -y build-essential cmake git wget && \
+    build-essential cmake git wget \
     # Graphic deps
-    apt-get install -y libgl1-mesa-dev && \
+    libgl1-mesa-dev \
     # Doc generation
-    apt-get install -y doxygen graphviz && \
-    rm -rf /var/lib/apt/lists/*
+    doxygen graphviz \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 COPY . /app
