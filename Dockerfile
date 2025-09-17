@@ -13,9 +13,11 @@ COPY . /app
 
 RUN chmod +x run.sh
 
-# This is for sonarcube code analysis
-COPY build-wrapper-linux-x86-64 /usr/local/bin/build-wrapper-linux-x86-64
-RUN chmod +x /usr/local/bin/build-wrapper-linux-x86-64
+# Install build wrapper for sonarcloud code analysis
+RUN curl -L -o /usr/local/bin/build-wrapper-linux-x86-64 \
+    https://binaries.sonarsource.com/BuildWrapper/build-wrapper-linux-x86-64.zip && \
+    unzip /usr/local/bin/build-wrapper-linux-x86-64 -d /usr/local/bin/ && \
+    chmod +x /usr/local/bin/build-wrapper-linux-x86-64
 
 # Execute run script by default
 CMD ["./run.sh", "run"]
