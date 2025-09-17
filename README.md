@@ -9,7 +9,7 @@ If you are intersted in how the project is organized and its used frameworks and
 # 🙋‍♂️ Users
 This section is for installing / building the app so as to test interactions and see what it looks like.
 
-## <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Windows_logo_-_2012.svg/88px-Windows_logo_-_2012.svg.png " alt="windows" width="24"/> Windows
+## <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Windows_logo_-_2012.svg/800px-Windows_logo_-_2012.svg.png " alt="windows" width="24"/> Windows
 
 ## <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Tux.svg/800px-Tux.svg.png" alt="Linux" width="24"/> Linux
 
@@ -24,13 +24,12 @@ This project uses docker to compile and build source code and [CPack](https://cm
 
 If you do not have docker and want to compile / build the project, check out [Docker installation](https://www.docker.com/get-started/) for compatibility.
 
-1. Clone this repository using this command (or use github interface): 
-    ```bash
-    git clone https://github.com/make-u-move-raw/CILAOS.git
-    ```
-2. Install dependencies :
-3. Build the app :
-4. Run the app 
+1. Clone the repository : `git clone https://github.com/make-u-move-raw/CILAOS.git`
+2. At root directory, pull docker image latest version: `docker pull ghcr.io/make-u-move-raw/cilaos:latest`
+
+3. Run the app on Windows : `docker run --rm -v "${PWD}:/app" -w /app ghcr.io/make-u-move-raw/cilaos:latest ./run.sh run` (Replace `${PWD}` with `$(pwd)` for Linux)
+
+_Note that you can run individual options. Run `docker run --rm -v "${PWD}:/app" -w /app ghcr.io/make-u-move-raw/cilaos:latest ./run.sh <option>` command with `help`option for more information._
 
 
 # TODO :
@@ -42,8 +41,7 @@ If you do not have docker and want to compile / build the project, check out [Do
 This project uses [TO_DEFINE] to test features and every unit test **MUST** pass to merge feature, you can run tests with : `RUN_TEST_COMMAND`
 
 ### 📖 Generating Documentation
-Documentation is automatically generated with [TO_DEFINE] use, to generate :#
-`GENERATE_DOC_COMMAND`
+Documentation is automatically generated with Docygen use, `docker run --rm -v "${PWD}:/app" -w /app ghcr.io/make-u-move-raw/cilaos:latest ./run.sh doc` to generate it.
 
 ### 💻 Development practices for the project
 
