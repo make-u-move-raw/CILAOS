@@ -18,12 +18,8 @@ jobs:
     - name: Build Docker image
       run: docker build -t cilaos .
 
-    - name: Build app
-      run: docker run --rm -v build-volume:/app/build cilaos ./run.sh build
-
-    - name: Run tests
-      run: docker run --rm -v build-volume:/app/build cilaos ./run.sh test-only
-
+    - name: Build app + tests 
+      run: docker run --rm cilaos ./run.sh test
 
     - name: Generate doc
       run: docker run --rm cilaos ./run.sh doc
