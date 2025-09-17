@@ -8,7 +8,17 @@ build_project() {
     if [ -d "build" ]; then rm -rf build; fi
     mkdir -p build
     cd build
-    
+    cmake ..
+    cmake --build .
+    cd ..
+}
+
+# Build for sonar
+build_sonar() {
+    if [ -d "build" ]; then rm -rf build; fi
+    mkdir -p build
+    cd build
+
     build-wrapper-linux-x86-64 --out-dir ../bw-output cmake ..
     build-wrapper-linux-x86-64 --out-dir ../bw-output cmake --build .
     cd ..
@@ -67,6 +77,9 @@ case "$MODE" in
     build)
         build_project
         ;;
+    build-sonar)
+        build_sonar
+        ;;
     test-only)
         run_tests
         ;;
@@ -85,6 +98,7 @@ case "$MODE" in
         echo " doc : generate documentation with current build"
         echo " build : build the project"
         echo " test-only : only test current build"
+        echo " build-sonar : unusable as is, only for CI"
         ;;
     *)
         echo "Option not recognized: $MODE"

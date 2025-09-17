@@ -21,7 +21,14 @@ jobs:
     - name: Build app + tests 
       run: docker run --rm cilaos ./run.sh test
 
-    - name: SonarCloud Scan
+    - name: Build with Wrapper for sonar
+      run: |
+        docker run --rm \
+          -v "${{ github.workspace }}:/usr/src" \
+          cilaos \
+          /bin/bash -c "./run.sh build_sonar"
+
+    - name: SonarCloud Quality code scan
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       run: |
