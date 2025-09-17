@@ -15,13 +15,14 @@ build_project() {
 
 # Run tests
 run_tests() {
-    cd build
+    cd /app/build
     # ctest --output-on-failure
     cd ..
 }
 
 # Documentation
 generate_doc(){
+    cd /app
     echo "Generating Doxyfile..."
     doxygen -g
 
@@ -40,7 +41,7 @@ generate_doc(){
 
 # Run application
 run_app() {
-    ./build/$APP_NAME
+    ./app/build/$APP_NAME
 }
 
 MODE="${1:-run}"
