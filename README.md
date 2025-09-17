@@ -25,11 +25,12 @@ This project uses docker to compile and build source code and [CPack](https://cm
 If you do not have docker and want to compile / build the project, check out [Docker installation](https://www.docker.com/get-started/) for compatibility.
 
 1. Clone the repository : `git clone https://github.com/make-u-move-raw/CILAOS.git`
-2. At root directory, pull docker image latest version: `docker pull ghcr.io/make-u-move-raw/cilaos:latest`
+2. At root directory, mount docker image locally : `docker build -t cilaos .`
+3. Run the app on Windows : `docker run --rm cilaos ./run.sh run` (Replace `${PWD}` with `$(pwd)` for Linux)
 
-3. Run the app on Windows : `docker run --rm -v "${PWD}:/app" -w /app ghcr.io/make-u-move-raw/cilaos:latest ./run.sh run` (Replace `${PWD}` with `$(pwd)` for Linux)
+If you change source code, use `docker run --rm -v $(pwd):/app cilaos ./run.sh <option>` instead to prevent building the image again.
 
-_Note that you can run individual options. Run `docker run --rm -v "${PWD}:/app" -w /app ghcr.io/make-u-move-raw/cilaos:latest ./run.sh <option>` command with `help`option for more information._
+_Note that you can run individual options. Run `docker run --rm cilaos ./run.sh help` to see all options._
 
 
 # TODO :
@@ -41,9 +42,16 @@ _Note that you can run individual options. Run `docker run --rm -v "${PWD}:/app"
 This project uses [TO_DEFINE] to test features and every unit test **MUST** pass to merge feature, you can run tests with : `RUN_TEST_COMMAND`
 
 ### 📖 Generating Documentation
-Documentation is automatically generated with Docygen use, `docker run --rm -v "${PWD}:/app" -w /app ghcr.io/make-u-move-raw/cilaos:latest ./run.sh doc` to generate it.
+Documentation is automatically generated with [Doxygen](https://www.doxygen.nl/index.html).  After [mouting image with docker](#️-build--run) (atleast once) use, `docker run --rm -v $(pwd):/app cilaos ./run.sh doc` to generate it. The resulting doc should be located in /docs/html/index.html
 
 ### 💻 Development practices for the project
+
+Each pull request go through github actions CI cycle consisting of :
+ - Build
+ - Unit tests validation and coverage
+ - Code quality
+ - Doc generation
+
 
 #### 🎯 Tracking issues
 This project uses **Github issues** to keep track of the development process and custom labels are used for organizing tasks in different types and priority. All the labels purposes are described in the project.

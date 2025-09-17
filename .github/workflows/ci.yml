@@ -10,63 +10,19 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Log in to GHCR # TODO: Remove logging with PAT once package will be set to public
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GHCR_PAT }}
-
-      - name: Build project in docker
-        uses: addnab/docker-run-action@v3
-        with:
-          image: ghcr.io/agheroo/cilaos:latest
-          options: --rm
-        run: |
-          chmod +x run.sh
-          ./run.sh build-only
-
-  test:
-    runs-on: ubuntu-latest
-    needs: build
 
     steps:
-      - uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v3
 
-      - name: Log in to GHCR for docker # TODO: Remove logging with PAT once package will be set to public
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GHCR_PAT }}
+    - name: Build Docker image
+      run: docker build -t cilaos .
 
-      - name: Run tests with docker
-        uses: addnab/docker-run-action@v3
-        with:
-          image: ghcr.io/agheroo/cilaos:latest
-          options: --rm
-        run: ./run.sh test-only
+    - name: Build app
+      run: docker run --rm cilaos ./run.sh build
 
-  doc:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - uses: actions/checkout@v4
+    - name: Run tests (if any)
+      run: docker run --rm cilaos ./run.sh test-only
 
-      - name: Log in to GHCR for docker # TODO: Remove logging with PAT once package will be set to public
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GHCR_PAT }}
-
-      - name: Run tests with docker
-        uses: addnab/docker-run-action@v3
-        with:
-          image: ghcr.io/agheroo/cilaos:latest
-          options: --rm
-      - name: Generate documentation
-        run: ./docker_run.sh doc
+    - name: Generate doc
+      run: docker run --rm cilaos ./run.sh doc
