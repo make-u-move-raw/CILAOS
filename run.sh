@@ -16,7 +16,7 @@ build_project() {
 # Run tests
 run_tests() {
     cd /app/build
-    # ctest --output-on-failure
+    ctest --output-on-failure
     cd ..
 }
 
@@ -42,6 +42,14 @@ generate_doc(){
 # Run application
 run_app() {
     ./app/build/$APP_NAME
+    cd build
+    ctest --output-on-failure
+    cd ..
+}
+
+# Run application
+run_app() {
+    ./build/$APP_NAME
 }
 
 MODE="${1:-run}"
@@ -71,11 +79,11 @@ case "$MODE" in
     help)
         echo "Usage: docker_run.sh [run|test]"
         echo "  run  : build + tests + docs + execute application (default)"
-        echo "  test : build + tests only"
+        echo "  test : build + tests"
         echo " run-only : if you already built the project and just want to run it again"
         echo " doc : generate documentation with current build"
-        echo " build : build the project (used for CI/CD pipeline)"
-        echo " test-only : only test current build (used for CI/CD pipeline)"
+        echo " build : build the project"
+        echo " test-only : only test current build"
         ;;
     *)
         echo "Option not recognized: $MODE"

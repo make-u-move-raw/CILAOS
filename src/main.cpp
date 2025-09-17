@@ -1,4 +1,5 @@
 #include <iostream>
+#include "example/ex_func.hpp"
 
 /**
  * @mainpage A 3D project using raylib
@@ -14,10 +15,12 @@
  * std::cout << r.surface() << std::endl;
  * @endcode
  */
+int main() {
+    int a;
 
-int main(int argc, char** argv){
+    a = sum_until(5);
 
-    std::cout << "Hello world" << std::endl;
-    
+    std::cout << a << std::endl;
+    std::cout << "Hello world !" << std::endl;
     return 0;
 }
