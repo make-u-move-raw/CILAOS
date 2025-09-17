@@ -26,7 +26,7 @@ jobs:
         docker run --rm \
           -v "${{ github.workspace }}:/usr/src" \
           cilaos \
-          /bin/bash -c "./run.sh build_sonar"
+          /bin/bash -c "./run.sh build-sonar"
 
     - name: SonarCloud Quality code scan
       env:
