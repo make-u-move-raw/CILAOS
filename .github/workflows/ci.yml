@@ -1,0 +1,46 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/agheroo/cilaos:latest  # Your docker image name
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build project
+        run: |
+          chmod +x run.sh
+          ./run.sh build-only
+
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+    container:
+      image: ghcr.io/agheroo/cilaos:latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run tests
+        run: ./run.sh test-only
+
+  doc:
+    runs-on: ubuntu-latest
+    needs: test   # exécuter seulement après le job test
+    container:
+      image: ghcr.io/<ton-username>/monprojet:latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate documentation
+        run: ./docker_run.sh doc
+      - name: Upload Documentation
+        uses: actions/upload-artifact@v3
+        with:
+          name: doxygen-doc
+          path: docs/html/
