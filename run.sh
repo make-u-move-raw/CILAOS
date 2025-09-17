@@ -18,10 +18,10 @@ build_sonar() {
     if [ -d "build" ]; then rm -rf build; fi
     mkdir -p build
     cd build
-    /usr/local/bin/build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir ../bw-output cmake ..
-    /usr/local/bin/build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir ../bw-output cmake --build .
+    /usr/local/bin/build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir /usr/src/bw-output cmake ..
+    /usr/local/bin/build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir /usr/src/bw-output cmake --build .
     
-    ls ..
+    ls /usr/src
     cd ..
 }
 
