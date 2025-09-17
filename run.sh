@@ -18,9 +18,8 @@ build_sonar() {
     if [ -d "build" ]; then rm -rf build; fi
     mkdir -p build
     cd build
-
-    build-wrapper-linux-x86-64 --out-dir ../bw-output cmake ..
-    build-wrapper-linux-x86-64 --out-dir ../bw-output cmake --build .
+    /usr/local/bin/build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir ../bw-output cmake ..
+    /usr/local/bin/build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir ../bw-output cmake --build .
     cd ..
 }
 
@@ -32,7 +31,7 @@ run_tests() {
 }
 
 # Documentation
-generate_doc(){
+generate_doc() {
     cd /app
     echo "Generating Doxyfile..."
     doxygen -g

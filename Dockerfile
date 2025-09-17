@@ -14,8 +14,8 @@ COPY . /app
 RUN chmod +x run.sh
 
 # Build wrapper for sonarcloud analysis
-COPY tools/build-wrapper-linux-x86-64 /usr/local/bin/build-wrapper-linux-x86-64
-RUN chmod +x /usr/local/bin/build-wrapper-linux-x86-64
+COPY tools/build-wrapper-linux-x86 /usr/local/bin/build-wrapper-linux-x86
+RUN chmod +x /usr/local/bin/build-wrapper-linux-x86/build-wrapper-linux-x86-64
 
 # Execute run script by default
 CMD ["./run.sh", "run"]

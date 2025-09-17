@@ -30,7 +30,7 @@ If you do not have docker and want to compile / build the project, check out [Do
 
 _Note that you can run specific options when running the image for the project : type `docker run --rm cilaos ./run.sh help` to see all available commands_
 
-If you changed source code, you can run on Windows `docker run --rm -v ${PWD}:/app cilaos ./docker_run.sh <command>` to avoid mouting another docker image. (Replace `${PWD}` with `$(pwd)` for Linux)
+If you changed source code, you can run on Windows `docker run --rm -v ${PWD}:/app cilaos ./run.sh <command>` to avoid mouting another docker image. (Replace `${PWD}` with `$(pwd)` for Linux)
 
 ### 📋 List and versions of libraries
 
