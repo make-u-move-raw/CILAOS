@@ -1,4 +1,4 @@
-#include "rect.h"
+#include "example/rect.h"
 
 Rectangle::Rectangle(double w, double h) : w_(w), h_(h) {}
 

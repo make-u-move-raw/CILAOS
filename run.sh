@@ -41,14 +41,6 @@ generate_doc(){
 
 # Run application
 run_app() {
-    ./app/build/$APP_NAME
-    cd build
-    ctest --output-on-failure
-    cd ..
-}
-
-# Run application
-run_app() {
     ./build/$APP_NAME
 }
 
