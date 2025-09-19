@@ -1,0 +1,23 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Build Docker image
+      run: docker build -t cilaos .
+
+    - name: Build app + tests 
+      run: docker run --rm cilaos ./run.sh test
+
+    - name: Generate doc
+      run: docker run --rm cilaos ./run.sh doc

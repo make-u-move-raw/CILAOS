@@ -22,8 +22,6 @@ target_include_directories(tests PRIVATE ${CMAKE_SOURCE_DIR}/include)
 target_link_libraries(tests PRIVATE ex_lib)
 
 
-
-
 # Toggle Ctest for testing framework
 enable_testing()
 add_test(NAME my_tests COMMAND tests)

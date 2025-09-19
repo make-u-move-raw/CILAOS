@@ -15,9 +15,28 @@ build_project() {
 
 # Run tests
 run_tests() {
-    cd build
+    cd /app/build
     ctest --output-on-failure
     cd ..
+}
+
+# Documentation
+generate_doc(){
+    cd /app
+    echo "Generating Doxyfile..."
+    doxygen -g
+
+    sed -i 's/PROJECT_NAME.*/PROJECT_NAME = Cilaos/' Doxyfile
+    sed -i 's/OUTPUT_DIRECTORY.*/OUTPUT_DIRECTORY = docs/' Doxyfile
+    sed -i 's/GENERATE_LATEX.*/GENERATE_LATEX = NO/' Doxyfile
+    sed -i 's|INPUT.*|INPUT = src include|' Doxyfile
+    sed -i 's/RECURSIVE.*/RECURSIVE = YES/' Doxyfile
+    sed -i 's/EXTRACT_ALL.*/EXTRACT_ALL = YES/' Doxyfile
+
+    echo "Generating documentation with Doxygen..."
+    doxygen Doxyfile
+
+    echo "Documentation available at /docs/html/index.html"
 }
 
 # Run application
@@ -36,19 +55,27 @@ case "$MODE" in
         run_tests
         run_app
         ;;
-    build-only)
+    build)
         build_project
+        ;;
+    test-only)
+        run_tests
         ;;
     test)
         build_project
         run_tests
         ;;
+    doc)
+        generate_doc
+        ;;
     help)
         echo "Usage: docker_run.sh [run|test]"
-        echo "  run  : build + tests + execute application (default)"
-        echo "  test : build + tests only"
-        echo " build-only : build the project"
+        echo "  run  : build + tests + docs + execute application (default)"
+        echo "  test : build + tests"
         echo " run-only : if you already built the project and just want to run it again"
+        echo " doc : generate documentation with current build"
+        echo " build : build the project"
+        echo " test-only : only test current build"
         ;;
     *)
         echo "Option not recognized: $MODE"

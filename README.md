@@ -9,7 +9,7 @@ If you are intersted in how the project is organized and its used frameworks and
 # 🙋‍♂️ Users
 This section is for installing / building the app so as to test interactions and see what it looks like.
 
-## <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Windows_logo_-_2012.svg/88px-Windows_logo_-_2012.svg.png " alt="windows" width="24"/> Windows
+## <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Windows_logo_-_2012.svg/800px-Windows_logo_-_2012.svg.png " alt="windows" width="24"/> Windows
 
 ## <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Tux.svg/800px-Tux.svg.png" alt="Linux" width="24"/> Linux
 
@@ -25,16 +25,12 @@ This project uses docker to compile and build source code and [CPack](https://cm
 If you do not have docker and want to compile / build the project, check out [Docker installation](https://www.docker.com/get-started/) for compatibility.
 
 1. Clone the repository : `git clone https://github.com/make-u-move-raw/CILAOS.git`
-2. At root directory, build docker image : `docker build -t cilaos .` This step should be done only **once**.
-3. Run the app : `docker run --rm cilaos` (goes through build, test validation and run sequence)
+2. At root directory, mount docker image locally : `docker build -t cilaos .` This step might take a while.
+3. Run the app : `docker run --rm cilaos ./run.sh run`
 
-_Note that you can run individual commands for the project : type `docker run --rm cilaos ./run.sh help` to see all available commands_
+_Note that you can run specific options when running the image for the project : type `docker run --rm cilaos ./run.sh help` to see all available commands_
 
-If you changed source code, you can run `docker run --rm -v ${PWD}:/app cilaos ./docker_run.sh <command>` to avoid mouting another docker image.
-
-
-
-# TODO :
+If you changed source code, you can run on Windows `docker run --rm -v ${PWD}:/app cilaos ./docker_run.sh <command>` to avoid mouting another docker image. (Replace `${PWD}` with `$(pwd)` for Linux)
 
 ### 📋 List and versions of libraries
 
@@ -47,11 +43,16 @@ This project uses [Catch2 v2.13.0](https://github.com/catchorg/Catch2/blob/v2.13
 ___
 
 ### 📖 Generating Documentation
-Documentation is automatically generated with [TO_DEFINE] use, to generate :#
-`GENERATE_DOC_COMMAND`
-___
+Documentation is automatically generated with [Doxygen](https://www.doxygen.nl/index.html).  After [mouting image with docker](#️-build--run) (atleast once) use, `docker run --rm -v $(pwd):/app cilaos ./run.sh doc` to generate it. The resulting doc should be located in /docs/html/index.html
 
 ### 💻 Development practices for the project
+
+Each pull request go through github actions CI cycle consisting of :
+ - Build
+ - Unit tests validation and coverage
+ - Code quality
+ - Doc generation
+
 
 #### 🎯 Tracking issues
 This project uses **Github issues** to keep track of the development process and custom labels are used for organizing tasks in different types and priority. All the labels purposes are described in the project.
