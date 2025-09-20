@@ -28,7 +28,4 @@ jobs:
     - name: Build app + tests 
       run: ./run.sh tests
 
-    - name: Generate doc
-      run: ./run.sh doc
-
     # TODO: Add CI for code analysis
