@@ -1,6 +1,13 @@
 #pragma once
 
 /**
+ * @namespace MyLib
+ * @brief A custom namespace for demonstration purposes
+ * 
+ * This resumes the class "Rectangle"
+ */
+namespace MyLib{
+/**
  * @class Rectangle
  * @brief Represents a rectangle
  * 
@@ -31,3 +38,4 @@ private:
     double w_;
     double h_;
 };
+}

@@ -1,5 +1,5 @@
 #include "catch2/catch.hpp"
-#include "example/ex_func.hpp"
+#include "my_lib/ex_func.hpp"
 
 
 

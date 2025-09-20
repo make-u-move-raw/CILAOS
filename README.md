@@ -18,33 +18,47 @@ This section is for installing / building the app so as to test interactions and
 
 # 👨‍💻 Developers
 This section is focused for developers of the project, feel free to change the code and experiment as you please.
+#### Prerequisites
+All of these are basic installations for dependencies for the developpers and may vary with the OS you are using.
 
+- Install [CMake](https://cmake.org/download/) if not already on your system
+(For windows users, install [MSys2](https://www.msys2.org/) if not already on your system)
+- Download and install [raylib](https://www.raylib.com/index.html)
+- _(Optional)_ Install [Doxygen](https://www.doxygen.nl/download.html) and [graphviz](https://graphviz.org/download/) and add it to path for generating doc
+
+___
+For all the following commands concerning the app, choose the script to execute dependending on your OS :
+
+**Linux and MacOs :** use bash script `run.sh`<br>
+**Windows :** use powershell script `run.ps1`
+___
 ### ⚙️ Build & Run
-This project uses docker to compile and build source code and [CPack](https://cmake.org/cmake/help/latest/manual/cpack.1.html#manual:cpack(1)) to deploy app for different OS.
+This project uses CMake to compile and build source code and [CPack](https://cmake.org/download/) to deploy app for different OS.
 
-If you do not have docker and want to compile / build the project, check out [Docker installation](https://www.docker.com/get-started/) for compatibility.
+1. At root of project, initialize the build for dependencies and libraries for the app with `./run.<sh|ps1> init`(This can take a while)
+2. Run the app with `./run.<sh|ps1> run` (Can take a while aswell for the first time you build)
 
-1. Clone the repository : `git clone https://github.com/make-u-move-raw/CILAOS.git`
-2. At root directory, mount docker image locally : `docker build -t cilaos .` This step might take a while.
-3. Run the app : `docker run --rm cilaos ./run.sh run`
-
-_Note that you can run specific options when running the image for the project : type `docker run --rm cilaos ./run.sh help` to see all available commands_
-
-If you changed source code, you can run on Windows `docker run --rm -v ${PWD}:/app cilaos ./docker_run.sh <command>` to avoid mouting another docker image. (Replace `${PWD}` with `$(pwd)` for Linux)
+_**Note** : If you see any error while doing the first step, check `CILAOS/build/_deps/raylib-src/CMakeLists.txt` and insure the first line is `cmake_minimum_required(VERSION 3.14)` and rerun the command at 1)._
+___
 
 ### 📋 List and versions of libraries
 
-- [raylib](https://www.raylib.com/) 
-___
+To avoid compatibility issues, make sure the versions of the libraries installed correspond to the one for the project, you can check with ``
 
+- [raylib](https://www.raylib.com/) = 5.0
+- [CMake](https://cmake.org/download/) Minimum 3.14
+- [Catch2](https://github.com/catchorg/Catch2/blob/v2.13.0/single_include/catch2) = 2.13.0
+
+___
 ### 🧪 Running Tests
-This project uses [Catch2 v2.13.0](https://github.com/catchorg/Catch2/blob/v2.13.0/single_include/catch2) to test features and every unit test **MUST** pass to merge feature and execute. You can run tests with  : `docker run --rm cilaos ./docker_run.sh test` note that this will build the project again.
+This project uses [Catch2](https://github.com/catchorg/Catch2) to test features and every unit test **MUST** pass add any feature. You can run tests with `./run.<sh|ps1> tests` and the results are displayed on terminal.
 
 ___
-
 ### 📖 Generating Documentation
-Documentation is automatically generated with [Doxygen](https://www.doxygen.nl/index.html).  After [mouting image with docker](#️-build--run) (atleast once) use, `docker run --rm -v $(pwd):/app cilaos ./run.sh doc` to generate it. The resulting doc should be located in /docs/html/index.html
+Documentation is automatically generated with [Doxygen](https://www.doxygen.nl/index.html). After building the project, generate doc with : `./run.<sh|ps1> doc`
 
+The resulting documentation should be located in `CILAOS/docs/html/index.html`
+___
 ### 💻 Development practices for the project
 
 Each pull request go through github actions CI cycle consisting of :

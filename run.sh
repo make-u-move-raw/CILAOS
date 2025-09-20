@@ -1,45 +1,38 @@
 #!/usr/bin/env bash
-set -e
+set -euo pipefail
 
 APP_NAME="Cilaos"
 
-# Build
 build_project() {
-    if [ -d "build" ]; then rm -rf build; fi
-    mkdir -p build
     cd build
-    cmake ..
     cmake --build .
     cd ..
 }
 
-# Run tests
+first_build() {
+    mkdir -p build
+    cd build
+    cmake ..
+    cd ..
+}
+
 run_tests() {
-    cd /app/build
+    cd build
     ctest --output-on-failure
     cd ..
 }
 
-# Documentation
-generate_doc(){
-    cd /app
-    echo "Generating Doxyfile..."
-    doxygen -g
-
-    sed -i 's/PROJECT_NAME.*/PROJECT_NAME = Cilaos/' Doxyfile
-    sed -i 's/OUTPUT_DIRECTORY.*/OUTPUT_DIRECTORY = docs/' Doxyfile
-    sed -i 's/GENERATE_LATEX.*/GENERATE_LATEX = NO/' Doxyfile
-    sed -i 's|INPUT.*|INPUT = src include|' Doxyfile
-    sed -i 's/RECURSIVE.*/RECURSIVE = YES/' Doxyfile
-    sed -i 's/EXTRACT_ALL.*/EXTRACT_ALL = YES/' Doxyfile
-
-    echo "Generating documentation with Doxygen..."
-    doxygen Doxyfile
-
-    echo "Documentation available at /docs/html/index.html"
+generate_doc() {
+    if [ ! -d "build" ]; then
+        echo "No build directory found. Running build first..."
+        build_project
+    fi
+    cd build
+    cmake --build . --target doc
+    cd ..
+    echo "Documentation available at ./docs/html/index.html"
 }
 
-# Run application
 run_app() {
     ./build/$APP_NAME
 }
@@ -47,21 +40,20 @@ run_app() {
 MODE="${1:-run}"
 
 case "$MODE" in
+    init)
+        first_build
+        ;;
     run-only)
         run_app
         ;;
     run)
         build_project
-        run_tests
         run_app
         ;;
     build)
         build_project
         ;;
-    test-only)
-        run_tests
-        ;;
-    test)
+    tests)
         build_project
         run_tests
         ;;
@@ -69,13 +61,13 @@ case "$MODE" in
         generate_doc
         ;;
     help)
-        echo "Usage: docker_run.sh [run|test]"
-        echo "  run  : build + tests + docs + execute application (default)"
-        echo "  test : build + tests"
-        echo " run-only : if you already built the project and just want to run it again"
-        echo " doc : generate documentation with current build"
-        echo " build : build the project"
-        echo " test-only : only test current build"
+        echo "Usage: ./run.sh [run|tests|build|doc|help|init]"
+        echo " init       : initial build (importing libs and deps)"
+        echo "  run       : build + execute application (default)"
+        echo "  tests      : build + tests"
+        echo "  run-only  : run app without rebuilding"
+        echo "  doc       : generate documentation with Doxygen"
+        echo "  build     : only build"
         ;;
     *)
         echo "Option not recognized: $MODE"

@@ -13,11 +13,15 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Build Docker image
-      run: docker build -t cilaos .
+    - name: Grant script execution access
+      run: chmod +x ./run.sh
+    - name: Build init (dependencies and libraries)
+      run: ./run.sh init
 
     - name: Build app + tests 
-      run: docker run --rm cilaos ./run.sh test
+      run: ./run.sh tests
 
     - name: Generate doc
-      run: docker run --rm cilaos ./run.sh doc
+      run: ./run.sh doc
+
+    # TODO: Add CI for code analysis
