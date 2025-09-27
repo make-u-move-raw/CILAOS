@@ -73,7 +73,9 @@ The resulting documentation should be located in `CILAOS/docs/html/index.html`
 
 ---
 
-### 💻 Development practices for the project
+### 💻 Development practices
+
+#### 🔄 **CI/CD**
 
 Each pull request go through github actions CI cycle consisting of :
 
@@ -82,11 +84,11 @@ Each pull request go through github actions CI cycle consisting of :
 - Code quality
 - Doc generation
 
-#### 🎯 Tracking issues
+#### 🎯 **Tracking issues**
 
 This project uses **Github issues** to keep track of the development process and custom labels are used for organizing tasks in different types and priority. All the labels purposes are described in the project.
 
-#### 🌿 Branches and commits:
+#### 🌿 **Branches and commits**
 
 All new features are merged into `develop`branch and then merged into `main`once a stable realease is available for production.
 
@@ -98,3 +100,18 @@ All new features are merged into `develop`branch and then merged into `main`once
 **hotfix/\<name>** → hotfix <br>
 
 Commit Messages must be clear, concise, and descriptive and **MUST** refer to a task (github issue ID) using this syntax : `<action> <scope/description>. <Issue reference>`
+
+#### 🎨 **Code formatting and style**
+
+The project use **PascalCasing** for classes and **pascalCasing** for methods and variable names. Also private attributes from a class are named following the underscore suffix convention i.e `privateVar_`
+
+The formatting of the code is done via VSCode C++ formatting tools, you can add the following lines to your `settings.json` file :
+
+```json
+"[cpp]": {
+  "editor.defaultFormatter": "ms-vscode.cpptools",
+  "editor.formatOnSave": true
+}
+```
+
+This practice ensures uniform code throughout the entire project and prevents from committing modified files without changing the code itself
