@@ -8,17 +8,12 @@ $APP_NAME = "Cilaos"
 $MODE = if ($args.Count -ge 1) { $args[0] } else { "run" }
 
 function Build-Project {
-    Set-Location "build"
-    cmake --build .
-    Set-Location ..
-}
-
-function First-Build {
     if (-not (Test-Path "build")) {
         New-Item -ItemType Directory -Path "build" | Out-Null
     }
     Set-Location "build"
     cmake ..
+    cmake --build .
     Set-Location ..
 }
 
@@ -44,9 +39,6 @@ function Run-App {
 }
 
 switch ($MODE) {
-    "init" {
-        First-Build
-    }
     "run-only" {
         Run-App
     }
@@ -65,12 +57,11 @@ switch ($MODE) {
         Generate-Doc
     }
     "help" {
-        Write-Host "Usage: ./run.ps1 [run|tests|build|doc|help|init]"
-        Write-Host " init       : initial build (importing libraries and dependencies)"
+        Write-Host "Usage: ./run.ps1 [run|tests|build|doc|help]"
         Write-Host " run        : build and execute the application (default)"
         Write-Host " tests       : build and run tests"
         Write-Host " run-only   : run the application without rebuilding"
-        Write-Host " doc        : generate documentation with Doxygen"
+        Write-Host " doc        : generate documentation with Doxygen (builds project if no build directory found)"
         Write-Host " build      : only build"
     }
     Default {

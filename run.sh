@@ -4,15 +4,14 @@ set -euo pipefail
 APP_NAME="Cilaos"
 
 build_project() {
+    if [ ! -d "build" ]; then
+        mkdir build
+        cd build
+        cmake ..
+        cd ..
+    fi
     cd build
     cmake --build .
-    cd ..
-}
-
-first_build() {
-    mkdir -p build
-    cd build
-    cmake ..
     cd ..
 }
 
@@ -40,9 +39,6 @@ run_app() {
 MODE="${1:-run}"
 
 case "$MODE" in
-    init)
-        first_build
-        ;;
     run-only)
         run_app
         ;;
@@ -61,8 +57,7 @@ case "$MODE" in
         generate_doc
         ;;
     help)
-        echo "Usage: ./run.sh [run|tests|build|doc|help|init]"
-        echo " init       : initial build (importing libs and deps)"
+        echo "Usage: ./run.sh [run|tests|build|doc|help]"
         echo "  run       : build + execute application (default)"
         echo "  tests      : build + tests"
         echo "  run-only  : run app without rebuilding"
