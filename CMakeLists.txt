@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 4.1)
+cmake_minimum_required(VERSION 3.31)
 set(PROJECT_NAME Cilaos)
 
 project(${PROJECT_NAME} CXX)
