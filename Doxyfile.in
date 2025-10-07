@@ -1,0 +1,7 @@
+PROJECT_NAME           = Cilaos
+GENERATE_LATEX         = NO
+RECURSIVE              = YES
+EXTRACT_ALL            = YES
+QUIET                  = YES
+INPUT                  = @CMAKE_SOURCE_DIR@/src @CMAKE_SOURCE_DIR@/include
+OUTPUT_DIRECTORY       = @DOC_OUTPUT_DIR@
