@@ -43,8 +43,4 @@
 build/
 docs/
 Doxyfile
-<<<<<<< Updated upstream
 .vscode
-=======
-.vscode
->>>>>>> Stashed changes
