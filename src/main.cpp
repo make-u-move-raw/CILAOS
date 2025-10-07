@@ -1,45 +1,37 @@
-#include <iostream>
-#include "my_lib/ex_func.h"
 #include "raylib/raylib.h"
-#include "my_lib/rectangle.h"
-/**
- * @mainpage A 3D project using raylib
- *
- * # Welcome to Cilaos documentation
- *
- * Please refer to README of the repo for more informations.
- *
- *
- * ## Example
- * @code
- * Rectangle r(3.0, 4.0);
- * std::cout << r.surface() << std::endl;
- * @endcode
- */
 
-int main(void)
+#define RAYGUI_IMPLEMENTATION
+#include "raylib/raygui.h"
+
+int main()
 {
-    int a;
-    MyLib::Rectangle rect = MyLib::Rectangle(5., 2.);
+    InitWindow(400, 200, "raygui - controls test suite");
+    SetTargetFPS(60);
 
-    double perim = rect.perim();
-    a = sum_until(5);
-
-    std::cout << "Hello world !" << std::endl;
-    std::cout << "The from 0 to a" << " is " << a << std::endl;
-    std::cout << "The perimeter of the rectangle is " << perim << std::endl;
-
-    InitWindow(800, 450, "raylib [core] example - basic window");
+    bool showMessageBox = false;
 
     while (!WindowShouldClose())
     {
+        // Draw
+        //----------------------------------------------------------------------------------
         BeginDrawing();
-        ClearBackground(RAYWHITE);
-        DrawText("Congrats! You created your first window!", 190, 200, 20, BLACK);
+        ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
+
+        if (GuiButton((Rectangle){24, 24, 120, 30}, "#191#Show Message"))
+            showMessageBox = true;
+
+        if (showMessageBox)
+        {
+            int result = GuiMessageBox((Rectangle){85, 70, 250, 100},
+                                       "#191#Message Box", "Hi! This is a message!", "Nice;Cool");
+
+            if (result >= 0)
+                showMessageBox = false;
+        }
+
         EndDrawing();
     }
 
     CloseWindow();
-
     return 0;
 }
