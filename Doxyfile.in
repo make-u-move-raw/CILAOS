@@ -5,3 +5,4 @@ EXTRACT_ALL            = YES
 QUIET                  = YES
 INPUT                  = @CMAKE_SOURCE_DIR@/src @CMAKE_SOURCE_DIR@/include
 OUTPUT_DIRECTORY       = @DOC_OUTPUT_DIR@
+JAVADOC_BANNER         = YES

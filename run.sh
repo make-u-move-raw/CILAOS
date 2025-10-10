@@ -54,6 +54,7 @@ case "$MODE" in
         run_tests
         ;;
     doc)
+        build_project
         generate_doc
         ;;
     help)
