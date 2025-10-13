@@ -1,10 +1,12 @@
 #pragma once
 
 #include "raylib/raylib.h"
+#include "raylib/raymath.h"
+#include "raylib/rlgl.h"
 #include "core/Layer.hpp"
 
-const float DEFAULT_CAM_ZOOM_SPEED = 20.0f;
-const float DEFAULT_CAM_ROTATE_SPEED = 0.5f;
+const float DEFAULT_CAM_ZOOM_SPEED = 500.0f;
+const float DEFAULT_CAM_ROTATE_SPEED = 18.0f;
 const float DEFAULT_CAM_MOVE_SPEED = 0.1f;
 const float DEFAULT_CAM_FOV = 45.0f;
 
@@ -41,4 +43,8 @@ private:
   Vector3 m_modelPos = {0.0f, 0.0f, 0.0f};
   Camera3D m_camera;
   CameraSpecification m_cameraSpecs = CameraSpecification();
+
+  void m_handleInputs(double dt);
+  void m_handleCameraInputs(double dt);
+  void m_handleCamera(double dt);
 };
