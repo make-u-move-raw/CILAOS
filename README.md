@@ -103,7 +103,7 @@ Commit Messages must be clear, concise, and descriptive and **MUST** refer to a 
 
 #### 🎨 **Code formatting and style**
 
-The project use **PascalCasing** for classes and **pascalCasing** for methods and variable names. Also private attributes from a class are named following the underscore suffix convention i.e `privateVar_`
+The project use **PascalCasing** for classes and **pascalCasing** for methods and variable names. Also private attributes from a class are named following the "m_underscore" suffix convention i.e `m_privateVar`
 
 The formatting of the code is done via VSCode C++ formatting tools, you can add the following lines to your `settings.json` file :
 

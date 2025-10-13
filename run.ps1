@@ -54,6 +54,7 @@ switch ($MODE) {
         Run-Tests
     }
     "doc" {
+        Build-Project
         Generate-Doc
     }
     "help" {

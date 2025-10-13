@@ -77,10 +77,10 @@ file(GLOB TEST_FILES tests/*.cpp)
 if(TEST_FILES)
     add_executable(tests ${TEST_FILES})
     target_include_directories(tests PRIVATE ${CMAKE_SOURCE_DIR}/include)
-    target_link_libraries(tests PRIVATE ex_lib)
+    target_link_libraries(tests PRIVATE core)
     
     enable_testing()
-    add_test(NAME my_tests COMMAND tests)
+    add_test(NAME Tests COMMAND tests)
     include(CTest)
 endif()
 
@@ -90,19 +90,24 @@ endif()
 
 # Sources
 file(GLOB_RECURSE PROJECT_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_LIST_DIR}/src/*.cpp")
-# Define PROJECT_INCLUDE to be the path to the include directory of the project
-set(PROJECT_INCLUDE "${CMAKE_CURRENT_LIST_DIR}/include/")
+set(PROJECT_INCLUDE "${CMAKE_CURRENT_LIST_DIR}/include")
 
-# Get source files
+
 set(SRC_FILES src/main.cpp)
 
-# Get custom library files
-file(GLOB CUSTOM_LIB_SRC src/my_lib/*.cpp)
-file(GLOB CUSTOM_LIB_HDR include/my_lib/*.h)
+# Get core source files and add core library
+file(GLOB CORE_LIB_SRC src/core/*.cpp)
+file(GLOB CORE_LIB_HDR include/core/*.hpp)
+add_library(core ${CORE_LIB_SRC} ${CORE_LIB_HDR})
+target_include_directories(core PRIVATE ${PROJECT_INCLUDE})
+target_link_libraries(core PUBLIC raylib)
 
-# Add custom library
-add_library(ex_lib ${CUSTOM_LIB_SRC} ${CUSTOM_LIB_HDR})
-target_include_directories(ex_lib PUBLIC ${CMAKE_SOURCE_DIR}/include)
+# Get app source files and add core library
+file(GLOB APP_LIB_SRC src/app/*.cpp)
+file(GLOB APP_LIB_HDR include/app/*.hpp)
+add_library(app ${APP_LIB_SRC} ${APP_LIB_HDR})
+target_include_directories(app PRIVATE ${PROJECT_INCLUDE})
+target_link_libraries(app PUBLIC raylib)
 
 # Main app
 add_executable(${PROJECT_NAME} ${SRC_FILES})
@@ -111,7 +116,8 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_INCLUDE})
 
 # Link libraries (external & custom)
 target_link_libraries(${PROJECT_NAME} PRIVATE 
-    ex_lib
+    core
+    app
     raylib
 )
 
