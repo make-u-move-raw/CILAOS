@@ -3,7 +3,9 @@
 #include "raylib/raylib.h"
 #include "raylib/raymath.h"
 #include "raylib/rlgl.h"
+#include "core/Event.hpp"
 #include "core/Layer.hpp"
+#include "core/Terrain.hpp"
 
 const float DEFAULT_CAM_ZOOM_SPEED = 500.0f;
 const float DEFAULT_CAM_ROTATE_SPEED = 18.0f;
@@ -25,22 +27,24 @@ struct CameraSpecification
 };
 
 /**
- * @class AppLayer
+ * @class SceneLayer
  * @brief The main layer of the app, rendering the terrain plot and handling events regarding the camera
  */
-class AppLayer : public Core::Layer
+class SceneLayer : public Core::Layer
 {
 
 public:
-  AppLayer();
-  virtual ~AppLayer();
+  SceneLayer();
+  virtual ~SceneLayer();
 
   virtual void update(double dt) override;
   virtual void render() override;
+  virtual void onEvent(Core::Event &event) {}
+  virtual void stop();
 
 private:
-  Model m_plane;
-  Vector3 m_modelPos = {0.0f, 0.0f, 0.0f};
+  bool m_isGenerated = false;
+  Terrain m_terrain;
   Camera3D m_camera;
   CameraSpecification m_cameraSpecs = CameraSpecification();
 

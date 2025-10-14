@@ -1,5 +1,5 @@
 #include "core/Application.hpp"
-#include "app/AppLayer.hpp"
+#include "app/SceneLayer.hpp"
 
 int main()
 {
@@ -7,7 +7,7 @@ int main()
   appSpecs.Name = "Cilaos v0.1";
 
   Core::Application app(appSpecs);
-  app.pushLayer<AppLayer>();
+  app.pushLayer<SceneLayer>();
   app.run();
 
   return 0;
