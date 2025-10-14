@@ -1,8 +1,8 @@
 #pragma once
 
 #include <vector>
-#include "raylib/raylib.h"
-#include "raylib/rlgl.h"
+#include "external/raylib/raylib.h"
+#include "external/raylib/rlgl.h"
 
 const float TERRAIN_COORDINATE_SIZE = 10.0f; // The size in world coordinates to display the terrain
 const int DEFAULT_TERRAIN_SIZE = 100;        // The default terrain size
