@@ -6,7 +6,7 @@
 
 const float TERRAIN_COORDINATE_SIZE = 10.0f; // The size in world coordinates to display the terrain
 const int DEFAULT_TERRAIN_SIZE = 100;        // The default terrain size
-const int MAX_TERRAIN_SIZE = 254;
+const int MAX_TERRAIN_SIZE = 254;            // The maximum terrain size (number of vertices limited to 65 535)
 
 namespace Core
 {
@@ -28,8 +28,8 @@ namespace Core
   public:
     bool generated = false;
 
-    Terrain() : m_size(0) {}
-    Terrain(int size) : m_size(size) {}
+    Terrain() { setSize(DEFAULT_TERRAIN_SIZE); }
+    Terrain(int size) { setSize(size); }
 
     /**
      * @brief Main call function for generating terrain when a new precision is set
@@ -45,17 +45,56 @@ namespace Core
      * @param dt The timestep between two frames
      */
     void update(double dt);
+
     /**
      * @brief Render the terrain model (thus linked models)
      */
     void render();
 
     /**
-     * @brief Get the registered base height of a vertex when terrain was generated
+     * @brief Get the x,y,z coordinates of the vertex of the current mesh
      * @param i The row of the vertex in the terrain grid
-     * @param j The col of the vertex in the terrain grid
-     * @return The height of the veertex at (i,j) in the terrain grid
+     * @param j The column of the vertex in the terrain grid
      */
+    Vector3 getVertexCoords(int i, int j) const
+    {
+      int vIndex = i * (m_size + 1) + j;
+      return {
+          m_mesh.vertices[3 * vIndex + 0],
+          m_mesh.vertices[3 * vIndex + 1],
+          m_mesh.vertices[3 * vIndex + 2]};
+    }
+
+    /**
+     * @brief Get the current mesh of the terain
+     */
+    Mesh getMesh() const { return m_mesh; }
+
+    /**
+     * @brief Get the current side size of terrain (nb of squares on a side)
+     */
+    int getSideSize() const { return m_size; }
+
+    /**
+     * @brief Get the current size of terrain (total nb of squares on the terrain)
+     */
+    int getFullSize() const { return m_size * m_size; }
+
+    /**
+     * @brief Get the current total number of vertices of the mesh
+     */
+    int getNbVertices() const { return m_mesh.vertexCount; }
+
+    /**
+     * @brief Get the current total number of triangles of the mesh
+     */
+    int getNbTriangles() const { return m_mesh.triangleCount; }
+
+    /**
+     * @brief Get the list of registered base heights of the current mesh
+     */
+    std::vector<float> getBaseHeights() const { return m_baseHeights; }
+
     float getBaseHeight(int i, int j) const { return m_baseHeights[i * (m_size + 1) + j]; }
     /**
      * @brief Get the position of the

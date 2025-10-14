@@ -23,6 +23,7 @@ namespace Core
         {
           std::cout << "ERROR: Trying to access unexisting baseHeights at index : " << vIndex
                     << ", vector is size of " << m_baseHeights.size() << std::endl;
+
           break;
         }
         m_mesh.vertices[3 * vIndex + 1] = std::max(base + A * cosf(omega * m_time + (i + j) * 0.1f), 0.0f);
@@ -53,14 +54,9 @@ namespace Core
     if (generated)
       unload();
 
-    mesh.vertices = (float *)MemAlloc(mesh.vertexCount * 3 * sizeof(float)); // 3 coordinates for each vertex (x, y, z)
-    mesh.normals = (float *)MemAlloc(mesh.vertexCount * 3 * sizeof(float));  // 3 coordinates for each vertex (x, y, z)}
-
-    // Save some space if not much vertices are drawn
-    if (mesh.vertexCount > 65535)
-      mesh.indices = (unsigned short *)MemAlloc(mesh.triangleCount * 3 * sizeof(unsigned short)); // 3 indices per triangle
-    else
-      mesh.indices = (unsigned short *)MemAlloc(mesh.triangleCount * 3 * sizeof(unsigned short)); // 3 indices per triangle
+    mesh.vertices = (float *)MemAlloc(mesh.vertexCount * 3 * sizeof(float));                    // 3 coordinates for each vertex (x, y, z)
+    mesh.normals = (float *)MemAlloc(mesh.vertexCount * 3 * sizeof(float));                     // 3 coordinates for each vertex (x, y, z)}
+    mesh.indices = (unsigned short *)MemAlloc(mesh.triangleCount * 3 * sizeof(unsigned short)); // 3 indices per triangle
     // Maybe add textures and colors ?
 
     // ---- vertices ----
@@ -147,8 +143,8 @@ namespace Core
   {
     if (size > MAX_TERRAIN_SIZE)
     {
-      std::cout << "ERROR: Terrain size " << m_size
-                << " exceeds maximum of " << MAX_TERRAIN_SIZE << std::endl;
+      std::cout << "ERROR: Terrain size " << m_size << " exceeds maximum of " << MAX_TERRAIN_SIZE << std::endl;
+      std::cout << "Falling back to maximum size " << MAX_TERRAIN_SIZE << std::endl;
       m_size = MAX_TERRAIN_SIZE;
     }
     else
