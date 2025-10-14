@@ -1,7 +1,7 @@
 #define RAYGUI_IMPLEMENTATION
 #include <assert.h>
-#include "raylib/raylib.h"
-#include "raylib/raygui.h"
+#include "external/raylib/raylib.h"
+#include "external/raylib/raygui.h"
 #include "core/Application.hpp"
 
 namespace Core

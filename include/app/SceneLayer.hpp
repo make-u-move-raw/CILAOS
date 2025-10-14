@@ -1,9 +1,9 @@
 #pragma once
 
-#include "raylib/raylib.h"
-#include "raylib/raymath.h"
-#include "raylib/rlgl.h"
 #include "core/Event.hpp"
+#include "external/raylib/raylib.h"
+#include "external/raylib/raymath.h"
+#include "external/raylib/rlgl.h"
 #include "core/Layer.hpp"
 #include "core/Terrain.hpp"
 
