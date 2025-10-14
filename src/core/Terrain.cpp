@@ -1,110 +1,157 @@
 #include "core/Terrain.hpp"
 #include <math.h>
 #include <iostream>
-const float TERRAIN_COORDINATE_SIZE = 1.0f;
-void Terrain::generateCustomTerrain()
+
+namespace Core
 {
-  if (generated)
-    unload(); // unbind VAO and reset drawing
-
-  Mesh mesh = {0};
-  mesh.triangleCount = 2 * m_size; // 2 Triangles for a square
-  mesh.vertexCount = mesh.triangleCount * 3;
-  mesh.vertices = (float *)MemAlloc(mesh.vertexCount * 3 * sizeof(float)); // 3 vertices, 3 coordinates each (x, y, z)
-  mesh.normals = (float *)MemAlloc(mesh.vertexCount * 3 * sizeof(float));  // 3 vertices, 3 coordinates each (x, y, z)
-  // Maybe add textures and colors ?
-
-  float step = 2 * TERRAIN_COORDINATE_SIZE / m_size;
-  for (int i = 0; i < m_size; i++)
+  void Terrain::update(double dt)
   {
-    for (int j = 0; j < m_size; j++)
+    m_time += dt;
+    float omega = 5.0f;
+    float A = 3.0f;
+
+    if (!generated)
+      return;
+
+    for (int i = 0; i <= m_size; i++)
     {
-      m_generateSquare(mesh, step, i, j);
+      for (int j = 0; j <= m_size; j++)
+      {
+        float base = getBaseHeight(i, j);
+        int vIndex = i * (m_size + 1) + j;
+        if (vIndex >= m_baseHeights.size())
+        {
+          std::cout << "ERROR: Trying to access unexisting baseHeights at index : " << vIndex
+                    << ", vector is size of " << m_baseHeights.size() << std::endl;
+          break;
+        }
+        m_mesh.vertices[3 * vIndex + 1] = std::max(base + A * cosf(omega * m_time + (i + j) * 0.1f), 0.0f);
+      }
+    }
+
+    // Re-upload new heights to GPU
+    UpdateMeshBuffer(m_mesh, 0, m_mesh.vertices, m_mesh.vertexCount * 3 * sizeof(float), 0);
+  }
+
+  void Terrain::render()
+  {
+    if (m_wireFrame)
+      DrawModelWires(m_model, m_pos, 1.0f, GREEN);
+    else
+      DrawModel(m_model, m_pos, 1.0f, WHITE);
+  }
+
+  void Terrain::generateCustomTerrain()
+  {
+    Mesh mesh = {0};
+    mesh.triangleCount = 2 * m_size * m_size;       // 2 Triangles for each square (m_size being the nb of squares)
+    mesh.vertexCount = (m_size + 1) * (m_size + 1); // for n² squares, there are (n+1)² points
+
+    m_baseHeights.resize(mesh.vertexCount, 0.0f);
+
+    // free previously allocated memory
+    if (generated)
+      unload();
+
+    mesh.vertices = (float *)MemAlloc(mesh.vertexCount * 3 * sizeof(float)); // 3 coordinates for each vertex (x, y, z)
+    mesh.normals = (float *)MemAlloc(mesh.vertexCount * 3 * sizeof(float));  // 3 coordinates for each vertex (x, y, z)}
+
+    // Save some space if not much vertices are drawn
+    if (mesh.vertexCount > 65535)
+      mesh.indices = (unsigned short *)MemAlloc(mesh.triangleCount * 3 * sizeof(unsigned short)); // 3 indices per triangle
+    else
+      mesh.indices = (unsigned short *)MemAlloc(mesh.triangleCount * 3 * sizeof(unsigned short)); // 3 indices per triangle
+    // Maybe add textures and colors ?
+
+    // ---- vertices ----
+    float step = (2.0f * TERRAIN_COORDINATE_SIZE) / (float)m_size;
+    for (int i = 0; i <= m_size; i++)
+    {
+      for (int j = 0; j <= m_size; j++)
+      {
+
+        int vIndex = i * (m_size + 1) + j;
+        mesh.vertices[3 * vIndex + 0] = -TERRAIN_COORDINATE_SIZE + j * step; // x
+        mesh.vertices[3 * vIndex + 1] = 1.0f;                                // y
+        mesh.vertices[3 * vIndex + 2] = -TERRAIN_COORDINATE_SIZE + i * step; // z
+
+        mesh.normals[3 * vIndex + 0] = 0.0f;
+        mesh.normals[3 * vIndex + 1] = 1.0f;
+        mesh.normals[3 * vIndex + 2] = 0.0f;
+
+        m_baseHeights[vIndex] = mesh.vertices[3 * vIndex + 1]; // Register freshly generated heights to base heights
+      }
+    }
+
+    // ---- indices ----
+    int index = 0;
+    for (int i = 0; i < m_size; i++)
+    {
+      for (int j = 0; j < m_size; j++)
+      {
+        int topLeft = i * (m_size + 1) + j;
+        int topRight = topLeft + 1;
+        int bottomLeft = (i + 1) * (m_size + 1) + j;
+        int bottomRight = bottomLeft + 1;
+
+        // first triangle
+        mesh.indices[index++] = topLeft;
+        mesh.indices[index++] = bottomLeft;
+        mesh.indices[index++] = topRight;
+
+        // second triangle
+        mesh.indices[index++] = topRight;
+        mesh.indices[index++] = bottomLeft;
+        mesh.indices[index++] = bottomRight;
+      }
+    }
+
+    // Upload mesh data from CPU (RAM) to GPU (VRAM) memory
+    m_mesh = mesh;
+
+    std::cout << "INFO : Generated custom terrain of side " << m_size << std::endl;
+  }
+
+  void Terrain::load()
+  {
+    UploadMesh(&m_mesh, false);
+    m_model = LoadModelFromMesh(m_mesh);
+    generated = true;
+  }
+
+  void Terrain::setBaseHeights(const std::vector<float> &newHeights)
+  {
+    m_baseHeights.resize(newHeights.size());
+
+    for (int i = 0; i < m_mesh.vertexCount; i++)
+    {
+      m_baseHeights[i] = newHeights[i];
+      m_mesh.vertices[3 * i + 1] = newHeights[i];
     }
   }
-  mesh.vertices[0] = -TERRAIN_COORDINATE_SIZE; // x
-  mesh.vertices[1] = 0;                        // y
-  mesh.vertices[2] = -TERRAIN_COORDINATE_SIZE; // z
-  mesh.normals[0] = 0;
-  mesh.normals[1] = 1;
-  mesh.normals[2] = 0;
 
-  mesh.vertices[3] = -TERRAIN_COORDINATE_SIZE; // x
-  mesh.vertices[4] = 0;                        // y
-  mesh.vertices[5] = TERRAIN_COORDINATE_SIZE;  // z
-  mesh.normals[3] = 0;
-  mesh.normals[4] = 1;
-  mesh.normals[5] = 0;
+  void Terrain::setBaseHeight(int i, int j, float newHeight)
+  {
+    if (i < 0 || i > m_size || j < 0 || j > m_size)
+    {
+      std::cout << "ERROR: Vertex indices out of bound : " << i * (m_size + 1) + j << "(" << i << "," << j << ")" << std::endl;
+      std::cout << "Size of map is " << m_size << " with " << sizeof(m_mesh.vertices) << " associated vertices and " << sizeof(m_mesh.indices) << " indices";
+      return;
+    }
 
-  mesh.vertices[6] = TERRAIN_COORDINATE_SIZE;  // x
-  mesh.vertices[7] = 0;                        // y
-  mesh.vertices[8] = -TERRAIN_COORDINATE_SIZE; // z
-  mesh.normals[6] = 0;
-  mesh.normals[7] = 1;
-  mesh.normals[8] = 0;
+    int vIndex = i * (m_size + 1) + j;
+    m_baseHeights[vIndex] = newHeight;
+  }
 
-  mesh.vertices[9] = TERRAIN_COORDINATE_SIZE;
-  ;                      // x
-  mesh.vertices[10] = 0; // y
-  mesh.vertices[11] = -TERRAIN_COORDINATE_SIZE;
-  ; // z
-  mesh.normals[9] = 0;
-  mesh.normals[10] = 1;
-  mesh.normals[11] = 0;
-
-  mesh.vertices[12] = -TERRAIN_COORDINATE_SIZE;
-  ;                      // x
-  mesh.vertices[13] = 0; // y
-  mesh.vertices[14] = TERRAIN_COORDINATE_SIZE;
-  ; // z
-  mesh.normals[12] = 0;
-  mesh.normals[13] = 1;
-  mesh.normals[14] = 0;
-
-  mesh.vertices[15] = TERRAIN_COORDINATE_SIZE; // x
-  mesh.vertices[16] = 0;                       // y
-  mesh.vertices[17] = TERRAIN_COORDINATE_SIZE; // z
-  mesh.normals[15] = 0;
-  mesh.normals[16] = 1;
-  mesh.normals[17] = 0;
-
-  /*
-for (int i = 0; i < sideSize + 1; i++)
-{
-for (int j = 0; j < sideSize + 1; j++)
-{
-  int index = (i * sideSize + j);
-  mesh.vertices[3 * index] = -TERRAIN_COORDINATE_SIZE + step * i;
-  mesh.vertices[3 * index + 1] = 0.0f; // TODO : link perlin values
-  mesh.vertices[3 * index + 2] = -TERRAIN_COORDINATE_SIZE + step * j;
-
-  mesh.normals[3 * index] = 0.0f;
-  mesh.normals[3 * index + 1] = 1.0f;
-  mesh.normals[3 * index + 2] = 0.0f;
-
-  std::cout << "(" << mesh.vertices[3 * index] << "," << mesh.vertices[3 * index + 2] << ")" << std::endl;
-}
-}
-*/
-
-  // Upload mesh data from CPU (RAM) to GPU (VRAM) memory
-  m_mesh = mesh;
-  UploadMesh(&m_mesh, false);
-  generated = true;
-}
-
-/**
- * @brief Generated the vertex data for a square of the mesh at x,y position in the grid
- *
- * WARNING : This method directly modifies the mesh and does not perform a copy
- * @param mesh The mesh to allocate data to
- * @param step The size of the step (in world coordinates)
- * @param i The number of the row
- * @param j The number of the column
- *
- */
-void Terrain::m_generateSquare(Mesh &mesh, float step, int i, int j)
-{
-  int index = i * m_size;
-  std::cout << "TODO" << std::endl;
+  void Terrain::setSize(const int size)
+  {
+    if (size > MAX_TERRAIN_SIZE)
+    {
+      std::cout << "ERROR: Terrain size " << m_size
+                << " exceeds maximum of " << MAX_TERRAIN_SIZE << std::endl;
+      m_size = MAX_TERRAIN_SIZE;
+    }
+    else
+      m_size = size;
+  }
 }

@@ -18,6 +18,7 @@ void SceneLayer::update(double dt)
 {
   m_handleInputs(dt);
   m_handleCamera(dt);
+  m_terrain.update(dt);
 }
 void SceneLayer::render()
 {
@@ -31,7 +32,6 @@ void SceneLayer::render()
 void SceneLayer::stop()
 {
   m_terrain.unload();
-  
 }
 
 /**
@@ -40,19 +40,44 @@ void SceneLayer::stop()
 void SceneLayer::m_handleInputs(double dt)
 {
   m_handleCameraInputs(dt);
-  int size;
-  if (IsKeyPressed(KEY_T))
-    size = 1;
-  if (IsKeyPressed(KEY_Y))
-    size = 2;
+  int size = 5;
 
-  if (IsKeyPressed(KEY_Y) || IsKeyPressed(KEY_T))
+  if (IsKeyPressed(KEY_ONE) || IsKeyPressed(KEY_TWO) || IsKeyPressed(KEY_THREE) ||
+      IsKeyPressed(KEY_FOUR) || IsKeyPressed(KEY_FIVE))
   {
+    int key = GetKeyPressed();
+
+    switch (key)
+    {
+    case KEY_ONE:
+      size = 20;
+      break;
+    case KEY_TWO:
+      size = 50;
+      break;
+    case KEY_THREE:
+      size = 100;
+      break;
+    case KEY_FOUR:
+      size = 200;
+      break;
+    case KEY_FIVE:
+      size = 300;
+      break;
+
+    default:
+      size = 1;
+      break;
+    }
+
+    std::cout << "Changed size to : " << size << std::endl;
     m_terrain.setSize(size);
     m_terrain.generateCustomTerrain();
     m_terrain.load();
-    std::cout << "INFO : Generated custom terrain of side " << size << std::endl;
   }
+
+  if (IsKeyPressed(KEY_Z))
+    m_terrain.switchRenderMode();
 }
 
 /**

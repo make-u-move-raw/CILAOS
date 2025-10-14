@@ -44,7 +44,7 @@ public:
 
 private:
   bool m_isGenerated = false;
-  Terrain m_terrain;
+  Core::Terrain m_terrain;
   Camera3D m_camera;
   CameraSpecification m_cameraSpecs = CameraSpecification();
 
