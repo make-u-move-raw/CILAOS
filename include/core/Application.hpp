@@ -25,7 +25,7 @@ namespace Core
   struct AppSpecification
   {
     const char *Name = "Cilaos";
-    int maxFPS = 2000;
+    int maxFPS = INT_MAX;
     WindowSpecification windowSpec;
   };
 
