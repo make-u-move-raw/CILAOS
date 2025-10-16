@@ -2,6 +2,8 @@
 
 #include "raylib/raylib.h"
 #include "core/Layer.hpp"
+#include "app/GUI_layer.hpp"
+
 
 const float DEFAULT_CAM_ZOOM_SPEED = 20.0f;
 const float DEFAULT_CAM_ROTATE_SPEED = 0.5f;
@@ -41,4 +43,6 @@ private:
   Vector3 m_modelPos = {0.0f, 0.0f, 0.0f};
   Camera3D m_camera;
   CameraSpecification m_cameraSpecs = CameraSpecification();
+  GUIlayer guiLayer;
+  
 };

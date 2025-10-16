@@ -1,4 +1,5 @@
 #include "core/testPerlinNoise.hpp"
+#include "app/GUI_layer.hpp"
 #include "raylib.h"
 #include <vector>
 #include <cmath>
@@ -23,33 +24,30 @@ Image GeneratePerlinHeatmap(const std::vector<std::vector<float>>& values, int w
     return img;
 }
 
-// --- Fonction principale ---
-void testPerlinNoiseRaylib()
+// --- Fonction pour régénérer le terrain avec les paramètres du GUI ---
+void RegenerateTerrain(PerlinNoise_& perlinObj, 
+                       siv::PerlinNoise& perlin,
+                       float heights[][100], 
+                       std::vector<std::vector<std::vector<float>>>& layerHeights,
+                       float& minHeight, float& maxHeight,
+                       GUIlayer& gui,
+                       int terrainSize)
 {
-    PerlinNoise_ perlinObj;
+    minHeight = 1000.0f;
+    maxHeight = -1000.0f;
 
-    const int screenWidth = 1200;
-    const int screenHeight = 800;
-    InitWindow(screenWidth, screenHeight, "Perlin Noise 3D Terrain + Layers View");
-    SetTargetFPS(60);
+    // Récupérer les valeurs des sliders
+    float noiseScale = gui.sliders[0].value / 10.0f; // Ajuster l'échelle
+    float persistence = gui.sliders[1].value;
+    float lacunarity = gui.sliders[2].value;
+    int octaves = (int)gui.sliders[3].value;
 
-    // --- Paramètres Perlin ---
-    siv::PerlinNoise perlin(12345);
-    const int terrainSize = 100;
-    const float spacing = 1.0f;
-    float noiseScale = 0.1f;
-    int octaves = 6;
-    float persistence = 0.5f;
-    float lacunarity = 2.0f;
+    // Redimensionner layerHeights si le nombre d'octaves a changé
+    if (layerHeights.size() != octaves) {
+        layerHeights.resize(octaves, std::vector<std::vector<float>>(terrainSize, std::vector<float>(terrainSize)));
+    }
 
-    // --- Terrain data ---
-    float heights[terrainSize][terrainSize];
-    std::vector<std::vector<std::vector<float>>> layerHeights(
-        octaves, std::vector<std::vector<float>>(terrainSize, std::vector<float>(terrainSize)));
-
-    float minHeight = 1000.0f, maxHeight = -1000.0f;
-
-    // --- Génération du terrain et stockage des couches ---
+    // Générer le nouveau terrain
     for (int z = 0; z < terrainSize; z++) {
         for (int x = 0; x < terrainSize; x++) {
             float height = perlinObj.perlinFractal(perlin, x * noiseScale, z * noiseScale, 0.5f,
@@ -65,10 +63,36 @@ void testPerlinNoiseRaylib()
             if (heights[z][x] > maxHeight) maxHeight = heights[z][x];
         }
     }
+}
 
-    // --- Génération des heatmaps 2D ---
+// --- Fonction principale ---
+void testPerlinNoiseRaylib()
+{
+    PerlinNoise_ perlinObj;
+    GUIlayer gui;
+
+    const int screenWidth = 1200;
+    const int screenHeight = 800;
+    InitWindow(screenWidth, screenHeight, "Perlin Noise 3D Terrain + Layers View");
+    SetTargetFPS(60);
+
+    // --- Paramètres Perlin ---
+    siv::PerlinNoise perlin(12345);
+    const int terrainSize = 100;
+    const float spacing = 1.0f;
+
+    // --- Terrain data ---
+    float heights[terrainSize][terrainSize];
+    std::vector<std::vector<std::vector<float>>> layerHeights;
+    float minHeight = 1000.0f, maxHeight = -1000.0f;
+
+    // Génération initiale du terrain
+    RegenerateTerrain(perlinObj, perlin, heights, layerHeights, minHeight, maxHeight, gui, terrainSize);
+
+    // --- Génération des heatmaps 2D initiales ---
     std::vector<Texture2D> layerTextures;
-    for (int i = 0; i < octaves; i++) {
+    int currentOctaves = (int)gui.sliders[3].value;
+    for (int i = 0; i < currentOctaves; i++) {
         Image img = GeneratePerlinHeatmap(layerHeights[i], terrainSize, terrainSize);
         layerTextures.push_back(LoadTextureFromImage(img));
         UnloadImage(img);
@@ -88,6 +112,13 @@ void testPerlinNoiseRaylib()
     float rotationAngle = 0.0f;
     int currentLayer = 0;
 
+    // Variables pour détecter les changements
+    float prevNoiseScale = gui.sliders[0].value;
+    float prevPersistence = gui.sliders[1].value;
+    float prevLacunarity = gui.sliders[2].value;
+    float prevOctaves = gui.sliders[3].value;
+    bool needsRegeneration = false;
+
     // --- Couleurs du terrain ---
     Color waterColor = { 30, 144, 255, 255 };
     Color sandColor = { 238, 214, 175, 255 };
@@ -100,6 +131,43 @@ void testPerlinNoiseRaylib()
     while (!WindowShouldClose()) {
         float deltaTime = GetFrameTime();
 
+        // Vérifier les changements dans les sliders
+        if (prevNoiseScale != gui.sliders[0].value ||
+            prevPersistence != gui.sliders[1].value ||
+            prevLacunarity != gui.sliders[2].value ||
+            prevOctaves != gui.sliders[3].value) {
+            
+            needsRegeneration = true;
+            
+            // Mettre à jour les valeurs précédentes
+            prevNoiseScale = gui.sliders[0].value;
+            prevPersistence = gui.sliders[1].value;
+            prevLacunarity = gui.sliders[2].value;
+            prevOctaves = gui.sliders[3].value;
+        }
+
+        // Régénérer le terrain si nécessaire
+        if (needsRegeneration) {
+            // Libérer les anciennes textures
+            for (auto& tex : layerTextures) {
+                UnloadTexture(tex);
+            }
+            layerTextures.clear();
+
+            // Régénérer le terrain
+            RegenerateTerrain(perlinObj, perlin, heights, layerHeights, minHeight, maxHeight, gui, terrainSize);
+
+            // Régénérer les heatmaps
+            currentOctaves = (int)gui.sliders[3].value;
+            for (int i = 0; i < currentOctaves; i++) {
+                Image img = GeneratePerlinHeatmap(layerHeights[i], terrainSize, terrainSize);
+                layerTextures.push_back(LoadTextureFromImage(img));
+                UnloadImage(img);
+            }
+
+            needsRegeneration = false;
+        }
+
         if (autoRotate) {
             rotationAngle += deltaTime * 30.0f;
             camera.position.x = cosf(rotationAngle * DEG2RAD) * 80.0f;
@@ -109,11 +177,13 @@ void testPerlinNoiseRaylib()
         if (IsKeyPressed(KEY_SPACE)) wireframeMode = !wireframeMode;
         if (IsKeyPressed(KEY_A)) autoRotate = !autoRotate;
         if (IsKeyPressed(KEY_L)) showLayers = !showLayers;
+        if (IsKeyPressed(KEY_G)) gui.toggleGUI(); // Toggle GUI avec G
+        
         if (showLayers) {
             if (IsKeyPressed(KEY_RIGHT)) currentLayer++;
             if (IsKeyPressed(KEY_LEFT)) currentLayer--;
             if (currentLayer < 0) currentLayer = 0;
-            if (currentLayer >= octaves) currentLayer = octaves - 1;
+            if (currentLayer >= currentOctaves) currentLayer = currentOctaves - 1;
         }
 
         // --- Rendu ---
@@ -153,6 +223,11 @@ void testPerlinNoiseRaylib()
 
         EndMode3D();
 
+        // --- Afficher le GUI ---
+        if (gui.getShowGUI()) {
+            gui.renderGui();
+        }
+
         // --- UI / Overlay ---
         DrawRectangle(5, 5, 400, 240, (Color){0, 0, 0, 128});
         DrawText("PERLIN NOISE 3D TERRAIN TEST", 10, 10, 20, WHITE);
@@ -160,7 +235,8 @@ void testPerlinNoiseRaylib()
         DrawText("R: Generate new terrain", 10, 80, 15, WHITE);
         DrawText("A: Toggle auto-rotation", 10, 100, 15, WHITE);
         DrawText("L: Toggle layer heatmaps", 10, 120, 15, WHITE);
-        DrawText("Arrow keys: Move camera / Change layer", 10, 140, 15, WHITE);
+        DrawText("G: Toggle GUI", 10, 140, 15, WHITE);
+        DrawText("Arrow keys: Move camera / Change layer", 10, 160, 15, WHITE);
         DrawText(TextFormat("Wireframe: %s", wireframeMode ? "ON" : "OFF"), 10, 200, 15, wireframeMode ? YELLOW : WHITE);
         DrawText(TextFormat("Auto-rotate: %s", autoRotate ? "ON" : "OFF"), 10, 220, 15, autoRotate ? YELLOW : WHITE);
 
@@ -168,7 +244,7 @@ void testPerlinNoiseRaylib()
         if (showLayers) {
             int thumbSize = 100;
             int padding = 10;
-            for (int i = 0; i < octaves; i++) {
+            for (int i = 0; i < currentOctaves; i++) {
                 int x = screenWidth - thumbSize - padding;
                 int y = padding + i * (thumbSize + padding);
                 DrawTexturePro(layerTextures[i],

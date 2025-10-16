@@ -5,10 +5,9 @@
 AppLayer::AppLayer()
 {
   m_plane = LoadModelFromMesh(GenMeshPlane(10, 10, 1, 1));
-  m_camera = {{10.0f, 10.0f, 10.0f}, {0.0f, 0.0f, 0.0f}, m_cameraSpecs.upVector, m_cameraSpecs.fov, 0};
+  m_camera = {{10.0f, 10.0f, 10.0f}, {0.0f, 0.0f, 0.0f}, m_cameraSpecs.upVector, m_cameraSpecs.fov, 0};  
 }
 AppLayer::~AppLayer() {}
-
 void AppLayer::update(double dt)
 {
   if (m_cameraSpecs.isRotating)
@@ -27,6 +26,7 @@ void AppLayer::render()
 
   DrawModel(m_plane, m_modelPos, 1.0f, WHITE);
   DrawGrid(50, 1.0);
-
   EndMode3D();
+  if(guiLayer.getShowGUI()) guiLayer.renderGui();
+
 }

@@ -9,7 +9,7 @@ int main()
 {
     // PerlinNoise3D perlin(234890);
     
-    testPerlinNoiseRaylib();
+    //testPerlinNoiseRaylib();
     // // Génération d'une grille 2D (terrain)
     // int size = 30;
     // std::cout << "\nGrille " << size << "x" << size <<" de bruit:" << std::endl;
@@ -21,12 +21,12 @@ int main()
     //     std::cout << std::endl;
     // }
 
-//   Core::AppSpecification appSpecs;
-//   appSpecs.Name = "Cilaos v0.1";
+  Core::AppSpecification appSpecs;
+  appSpecs.Name = "Cilaos v0.1";
 
-//   Core::Application app(appSpecs);
-//   app.pushLayer<AppLayer>();
-//   app.run();
+  Core::Application app(appSpecs);
+  app.pushLayer<AppLayer>();
+  app.run();
 
   return 0;
 }
