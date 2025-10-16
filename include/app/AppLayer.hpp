@@ -1,6 +1,6 @@
 #pragma once
 
-#include "raylib/raylib.h"
+#include "external/raylib/raylib.h"
 #include "core/Layer.hpp"
 
 const float DEFAULT_CAM_ZOOM_SPEED = 20.0f;
