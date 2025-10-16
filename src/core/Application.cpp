@@ -1,7 +1,7 @@
 #define RAYGUI_IMPLEMENTATION
 #include <assert.h>
-#include "raylib/raylib.h"
-#include "raylib/raygui.h"
+#include "external/raylib/raylib.h"
+#include "external/raylib/raygui.h"
 #include "core/Application.hpp"
 
 namespace Core
@@ -55,6 +55,7 @@ namespace Core
       for (const std::unique_ptr<Layer> &layer : m_layers)
         layer->render();
 
+      DrawFPS(0, 0);
       EndDrawing();
     }
   }
@@ -64,6 +65,8 @@ namespace Core
    */
   void Application::stop()
   {
+    for (const std::unique_ptr<Layer> &layer : m_layers)
+      layer->stop();
     m_isRunning = false;
     m_window->destroy();
   }

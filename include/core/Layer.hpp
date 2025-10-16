@@ -25,6 +25,6 @@ namespace Core
      * @brief Called each time an event is triggered, all of which are keyboard and mouse inputs for now
      * @param event The event that is triggered
      */
-    virtual void onEvent(Event &event) {}
+    virtual void onEvent(Event &event) = 0;
   };
 }
