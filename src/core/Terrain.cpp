@@ -117,9 +117,9 @@ namespace Core
       return;
     }
 
-    for (int i = 0; i < m_size; i++)
+    for (int i = 0; i <= m_size; i++)
     {
-      for (int j = 0; j < m_size; j++)
+      for (int j = 0; j <= m_size; j++)
       {
         int vIndex = i * (m_size + 1) + j;
         float newHeight = std::max(0.0f, m_perlinGenerator.generateFractalPerlinHeight(i, j, 12.0f));
