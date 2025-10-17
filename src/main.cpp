@@ -1,9 +1,10 @@
 #include "core/Application.hpp"
 #include "app/SceneLayer.hpp"
+#include "core/testPerlinNoise.hpp"
 
 int main()
 {
-  srand(time(0));
+  // testPerlinNoiseRaylib();
   Core::AppSpecification appSpecs;
   appSpecs.Name = "Cilaos v0.1";
 
