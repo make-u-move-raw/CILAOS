@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include "core/PerlinGenerator.hpp"
 #include "external/raylib/raylib.h"
 #include "external/raylib/rlgl.h"
 
@@ -17,7 +18,8 @@ namespace Core
   class Terrain
   {
   private:
-    bool m_wireFrame = false;
+    PerlinGenerator m_perlinGenerator;
+    bool m_wireFrame = false;           // Wireframe display flag
     double m_time = 0.0;                // The time associated with the class
     Vector3 m_pos = {0.0f, 0.0f, 0.0f}; // The position of the terrain in world coordinates
     Mesh m_mesh = {0};                  // The mesh of the terrain
@@ -34,9 +36,18 @@ namespace Core
     /**
      * @brief Main call function for generating terrain when a new precision is set
      *
-     * This method can become quite costly if a lot of vertices are generated, try using `update(...)` instead
+     * This method can become quite costly if a lot of vertices are generated :
+     * don't call it too often try using `update(...)` instead
      */
     void generateCustomTerrain();
+
+    /**
+     * @brief Main call for when using a new perlin noise seed
+     *
+     * This method can become quite costly if a lot of vertices are generated :
+     * don't call it too often try using `update(...)` instead
+     */
+    void regenerateTerrain(const unsigned int newSeed);
 
     /**
      * @brief Update method to be called for physics or data management.
@@ -94,11 +105,14 @@ namespace Core
      * @brief Get the list of registered base heights of the current mesh
      */
     std::vector<float> getBaseHeights() const { return m_baseHeights; }
-
+    /**
+     * @brief Get the base height of a vertex registered when generating the model
+     * @return The height of the vertex at (i,j) in the terrain grid
+     */
     float getBaseHeight(int i, int j) const { return m_baseHeights[i * (m_size + 1) + j]; }
     /**
-     * @brief Get the position of the
-     * @return The height of the veertex at (i,j) in the terrain grid
+     * @brief Get the position of the model mesh
+     * @return The position of the model
      */
     Vector3 getPos() const { return m_pos; }
 
