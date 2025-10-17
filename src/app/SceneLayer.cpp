@@ -1,3 +1,6 @@
+#define RLIGHTS_IMPLEMENTATION
+#include "app/SceneLayer.hpp"
+
 #include <algorithm>
 #include <chrono>
 #include <iostream>
@@ -10,27 +13,54 @@ SceneLayer::SceneLayer()
 {
   m_camera = {{10.0f, 10.0f, 10.0f}, {0.0f, 0.0f, 0.0f}, m_cameraSpecs.upVector, m_cameraSpecs.fov, 0};
   m_camera.target = m_terrain.getPos();
+
+  m_shader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(m_shader, "viewPos");
+
+  int ambientLoc = GetShaderLocation(m_shader, "ambient");
+  SetShaderValue(m_shader, ambientLoc, (float[4]){0.24f, 0.0f, 0.0f, 0.1f}, SHADER_UNIFORM_VEC4);
+
+  m_sun = CreateLight(LIGHT_POINT, m_sunPos, Vector3Zero(), {252, 205, 205, 100}, m_shader);
+
+  m_terrain.setSize(100);
+  m_terrain.generateCustomTerrain();
+  m_terrain.load();
+  m_terrain.getModel().materials[0].shader = m_shader;
 }
 SceneLayer::~SceneLayer() {}
 
 void SceneLayer::update(double dt)
 {
+  // Update the view position for the shader (needed for lighting calculations)
+  float cameraPos[3] = {m_camera.position.x, m_camera.position.y, m_camera.position.z};
+  SetShaderValue(m_shader, m_shader.locs[SHADER_LOC_VECTOR_VIEW], cameraPos, SHADER_UNIFORM_VEC3);
+
+  float r = Vector3Distance(m_terrain.getPos(), m_sun.position);
+  float phi = Vector3Angle(m_sun.position, {0.0f, 1.0f, 0.0f});
+  m_sun.position.x = r * sinf(phi) * cos(GetTime());
+  m_sun.position.z = r * sinf(phi) * sin(GetTime());
+  UpdateLightValues(m_shader, m_sun);
   m_handleInputs(dt);
   m_handleCamera(dt);
   m_terrain.update(dt);
 }
+
 void SceneLayer::render()
 {
   BeginMode3D(m_camera);
 
-  DrawGrid(50, 1.0);
-  m_terrain.render();
+  BeginShaderMode(m_shader);
 
+  m_terrain.render();
+  DrawGrid(50, 1.0);
+  EndShaderMode();
+  DrawSphereEx(m_sun.position, 2.0f, 8, 8, m_sun.color);
   EndMode3D();
 }
+
 void SceneLayer::stop()
 {
   m_terrain.unload();
+  UnloadShader(m_shader);
 }
 
 void SceneLayer::m_handleInputs(double dt)
@@ -69,6 +99,7 @@ void SceneLayer::m_handleInputs(double dt)
     m_terrain.setSize(size);
     m_terrain.generateCustomTerrain();
     m_terrain.load();
+    m_terrain.getModel().materials[0].shader = m_shader;
     std::cout << "INFO: Changed size to : " << m_terrain.getSideSize() << std::endl;
   }
 

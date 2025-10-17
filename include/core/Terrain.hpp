@@ -149,5 +149,9 @@ namespace Core
      * @brief Change the render mode to wireFrame or normal
      */
     void switchRenderMode() { m_wireFrame = !m_wireFrame; }
+
+    void calculateNormals();
+
+    Model getModel() { return m_model; }
   };
 }

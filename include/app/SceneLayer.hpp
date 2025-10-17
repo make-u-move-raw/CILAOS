@@ -4,6 +4,7 @@
 #include "external/raylib/raylib.h"
 #include "external/raylib/raymath.h"
 #include "external/raylib/rlgl.h"
+#include "external/raylib/rlights.h"
 #include "core/Layer.hpp"
 #include "core/Terrain.hpp"
 
@@ -67,7 +68,12 @@ public:
   virtual void stop();
 
 private:
-  bool m_rotating = false;                                   // Flag for camera auto rotation around the model
+  bool m_rotating = false; // Flag for camera auto rotation around the model
+
+  Shader m_shader = LoadShader(TextFormat("src/core/shaders/terrain.vs", 330),
+                               TextFormat("src/core/shaders/terrain.fs", 330));
+  Vector3 m_sunPos = {20.0f, 10.0f, 20.0f};
+  Light m_sun;
   Core::Terrain m_terrain;                                   // Terrain object for the scene
   Camera3D m_camera;                                         // Camera object
   CameraSpecification m_cameraSpecs = CameraSpecification(); // Specifications for the camera (settings)

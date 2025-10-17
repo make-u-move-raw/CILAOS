@@ -1,4 +1,5 @@
 #include "core/Terrain.hpp"
+#include "external/raylib/raymath.h"
 #include <math.h>
 #include <iostream>
 
@@ -6,32 +7,46 @@ namespace Core
 {
   void Terrain::update(double dt)
   {
+    static int frameCounter = 0;
     m_time += dt;
-    float omega = 1.0f;
-    float A = 0.7f;
+    frameCounter++;
 
-    if (!generated)
-      return;
-
-    for (int i = 0; i <= m_size; i++)
+    // Update call every 20 frames for performance (may change later)
+    if (frameCounter % 20 == 0)
     {
-      for (int j = 0; j <= m_size; j++)
+      frameCounter == 0;
+      float omega = 1.0f;
+      float A = 0.7f;
+
+      if (!generated)
+        return;
+
+      for (int i = 0; i <= m_size; i++)
       {
-        float base = getBaseHeight(i, j);
-        int vIndex = i * (m_size + 1) + j;
-        if (vIndex >= m_baseHeights.size())
+        for (int j = 0; j <= m_size; j++)
         {
-          std::cout << "ERROR: Trying to access unexisting baseHeights at index : " << vIndex
-                    << ", vector is size of " << m_baseHeights.size() << std::endl;
+          float base = getBaseHeight(i, j);
+          int vIndex = i * (m_size + 1) + j;
+          if (vIndex >= m_baseHeights.size())
+          {
+            std::cout << "ERROR: Trying to access unexisting baseHeights at index : " << vIndex
+                      << ", vector is size of " << m_baseHeights.size() << std::endl;
 
-          break;
+            break;
+          }
+
+          // Wave animation
+          m_mesh.vertices[3 * vIndex + 1] = std::max(base + A * cosf(omega * m_time + 0.04 * (i + j)), 0.0f);
         }
-        m_mesh.vertices[3 * vIndex + 1] = std::max(base + A * cosf(omega * m_time + 0.04 * (i + j)), 0.0f);
       }
-    }
 
-    // Re-upload new heights to GPU
-    UpdateMeshBuffer(m_mesh, 0, m_mesh.vertices, m_mesh.vertexCount * 3 * sizeof(float), 0);
+      // Re compute normals
+      calculateNormals();
+
+      // Re-upload new vertices data to GPU
+      UpdateMeshBuffer(m_mesh, 0, m_mesh.vertices, m_mesh.vertexCount * 3 * sizeof(float), 0);
+      UpdateMeshBuffer(m_mesh, 2, m_mesh.normals, m_mesh.vertexCount * 3 * sizeof(float), 0);
+    }
   }
 
   void Terrain::render()
@@ -67,7 +82,7 @@ namespace Core
       {
         int vIndex = i * (m_size + 1) + j;
         mesh.vertices[3 * vIndex + 0] = -TERRAIN_COORDINATE_SIZE + j * step;                                        // x
-        mesh.vertices[3 * vIndex + 1] = std::max(0.0f, m_perlinGenerator.generateFractalPerlinHeight(i, j, 12.0f)); // y
+        mesh.vertices[3 * vIndex + 1] = std::max(0.0f, m_perlinGenerator.generateFractalPerlinHeight(i, j, 15.0f)); // y
         mesh.vertices[3 * vIndex + 2] = -TERRAIN_COORDINATE_SIZE + i * step;                                        // z
 
         mesh.normals[3 * vIndex + 0] = 0.0f;
@@ -173,5 +188,53 @@ namespace Core
     }
     else
       m_size = size;
+  }
+
+  void Terrain::calculateNormals()
+  {
+    // Reset all normals to zero
+    for (int i = 0; i < m_mesh.vertexCount * 3; i++)
+    {
+      m_mesh.normals[i] = 0.0f;
+    }
+
+    // Calculate face normals and accumulate to vertex normals
+    for (int i = 0; i < m_mesh.triangleCount; i++)
+    {
+      int idx0 = m_mesh.indices[i * 3 + 0];
+      int idx1 = m_mesh.indices[i * 3 + 1];
+      int idx2 = m_mesh.indices[i * 3 + 2];
+
+      Vector3 v0 = {m_mesh.vertices[idx0 * 3 + 0], m_mesh.vertices[idx0 * 3 + 1], m_mesh.vertices[idx0 * 3 + 2]};
+      Vector3 v1 = {m_mesh.vertices[idx1 * 3 + 0], m_mesh.vertices[idx1 * 3 + 1], m_mesh.vertices[idx1 * 3 + 2]};
+      Vector3 v2 = {m_mesh.vertices[idx2 * 3 + 0], m_mesh.vertices[idx2 * 3 + 1], m_mesh.vertices[idx2 * 3 + 2]};
+
+      Vector3 edge1 = Vector3Subtract(v1, v0);
+      Vector3 edge2 = Vector3Subtract(v2, v0);
+      Vector3 normal = Vector3CrossProduct(edge1, edge2);
+
+      // Accumulate normal to all three vertices
+      m_mesh.normals[idx0 * 3 + 0] += normal.x;
+      m_mesh.normals[idx0 * 3 + 1] += normal.y;
+      m_mesh.normals[idx0 * 3 + 2] += normal.z;
+
+      m_mesh.normals[idx1 * 3 + 0] += normal.x;
+      m_mesh.normals[idx1 * 3 + 1] += normal.y;
+      m_mesh.normals[idx1 * 3 + 2] += normal.z;
+
+      m_mesh.normals[idx2 * 3 + 0] += normal.x;
+      m_mesh.normals[idx2 * 3 + 1] += normal.y;
+      m_mesh.normals[idx2 * 3 + 2] += normal.z;
+    }
+
+    // Normalize all vertex normals
+    for (int i = 0; i < m_mesh.vertexCount; i++)
+    {
+      Vector3 normal = {m_mesh.normals[i * 3 + 0], m_mesh.normals[i * 3 + 1], m_mesh.normals[i * 3 + 2]};
+      normal = Vector3Normalize(normal);
+      m_mesh.normals[i * 3 + 0] = normal.x;
+      m_mesh.normals[i * 3 + 1] = normal.y;
+      m_mesh.normals[i * 3 + 2] = normal.z;
+    }
   }
 }
