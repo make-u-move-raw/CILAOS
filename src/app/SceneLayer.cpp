@@ -1,9 +1,10 @@
+#include <algorithm>
+#include <chrono>
+#include <iostream>
 #include "app/SceneLayer.hpp"
 #include "core/Application.hpp"
 #include "core/Terrain.hpp"
 #include "core/Event.hpp"
-#include <iostream>
-#include <algorithm>
 
 const float MAX_ZOOM_OUT_DISTANCE = 50.0f;
 const float MAX_ZOOM_IN_DISTANCE = 6.0f;
@@ -70,14 +71,22 @@ void SceneLayer::m_handleInputs(double dt)
       break;
     }
 
-    std::cout << "Changed size to : " << size << std::endl;
     m_terrain.setSize(size);
     m_terrain.generateCustomTerrain();
     m_terrain.load();
+    std::cout << "INFO: Changed size to : " << m_terrain.getSideSize() << std::endl;
   }
 
   if (IsKeyPressed(KEY_Z))
     m_terrain.switchRenderMode();
+
+  if (IsKeyPressed(KEY_T))
+  {
+    std::mt19937 gen(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+    std::uniform_int_distribution<unsigned int> distrib(0, 4294967295);
+    unsigned int randomSeed = distrib(gen);
+    m_terrain.regenerateTerrain(randomSeed);
+  }
 }
 
 /**

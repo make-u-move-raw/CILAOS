@@ -7,8 +7,8 @@ namespace Core
   void Terrain::update(double dt)
   {
     m_time += dt;
-    float omega = 5.0f;
-    float A = 3.0f;
+    float omega = 1.0f;
+    float A = 0.7f;
 
     if (!generated)
       return;
@@ -26,7 +26,7 @@ namespace Core
 
           break;
         }
-        m_mesh.vertices[3 * vIndex + 1] = std::max(base + A * cosf(omega * m_time + (i + j) * 0.1f), 0.0f);
+        m_mesh.vertices[3 * vIndex + 1] = std::max(base + A * cosf(omega * m_time + 0.04 * (i + j)), 0.0f);
       }
     }
 
@@ -65,11 +65,10 @@ namespace Core
     {
       for (int j = 0; j <= m_size; j++)
       {
-
         int vIndex = i * (m_size + 1) + j;
-        mesh.vertices[3 * vIndex + 0] = -TERRAIN_COORDINATE_SIZE + j * step; // x
-        mesh.vertices[3 * vIndex + 1] = 1.0f;                                // y
-        mesh.vertices[3 * vIndex + 2] = -TERRAIN_COORDINATE_SIZE + i * step; // z
+        mesh.vertices[3 * vIndex + 0] = -TERRAIN_COORDINATE_SIZE + j * step;                                        // x
+        mesh.vertices[3 * vIndex + 1] = std::max(0.0f, m_perlinGenerator.generateFractalPerlinHeight(i, j, 12.0f)); // y
+        mesh.vertices[3 * vIndex + 2] = -TERRAIN_COORDINATE_SIZE + i * step;                                        // z
 
         mesh.normals[3 * vIndex + 0] = 0.0f;
         mesh.normals[3 * vIndex + 1] = 1.0f;
@@ -105,7 +104,32 @@ namespace Core
     // Upload mesh data from CPU (RAM) to GPU (VRAM) memory
     m_mesh = mesh;
 
-    std::cout << "INFO : Generated custom terrain of side " << m_size << std::endl;
+    std::cout << "INFO: Generated custom terrain of side " << m_size << std::endl;
+  }
+
+  void Terrain::regenerateTerrain(const unsigned int newSeed)
+  {
+    std::cout << "INFO: Regenerating terrain" << std::endl;
+    m_perlinGenerator.generateNewSeed(newSeed);
+    if (!generated)
+    {
+      generateCustomTerrain();
+      return;
+    }
+
+    for (int i = 0; i < m_size; i++)
+    {
+      for (int j = 0; j < m_size; j++)
+      {
+        int vIndex = i * (m_size + 1) + j;
+        float newHeight = std::max(0.0f, m_perlinGenerator.generateFractalPerlinHeight(i, j, 12.0f));
+        m_mesh.vertices[3 * vIndex + 1] = newHeight;
+        setBaseHeight(i, j, newHeight);
+      }
+    }
+
+    std::cout << "INFO: Generated new terrain with seed : " << newSeed << std::endl;
+    UpdateMeshBuffer(m_mesh, 0, m_mesh.vertices, m_mesh.vertexCount * 3 * sizeof(float), 0);
   }
 
   void Terrain::load()
@@ -143,7 +167,7 @@ namespace Core
   {
     if (size > MAX_TERRAIN_SIZE)
     {
-      std::cout << "ERROR: Terrain size " << m_size << " exceeds maximum of " << MAX_TERRAIN_SIZE << std::endl;
+      std::cout << "ERROR: Terrain size " << size << " exceeds maximum of " << MAX_TERRAIN_SIZE << std::endl;
       std::cout << "Falling back to maximum size " << MAX_TERRAIN_SIZE << std::endl;
       m_size = MAX_TERRAIN_SIZE;
     }
