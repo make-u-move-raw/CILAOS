@@ -1,11 +1,10 @@
 #pragma once
 #include <iostream>
-#include "raylib/raylib.h"
-#include "raylib/raygui.h"
+#include "external/raylib/raylib.h"
+#include "external/raylib/raygui.h"
 #include "core/Layer.hpp"
 #include <string>
 #include <vector>
-
 
 /**
  * @struct Slider
@@ -19,7 +18,6 @@ struct slider
     float minValue;
     float maxValue;
     bool isInteger;
-
 };
 
 /**
@@ -37,9 +35,6 @@ public:
     bool textBoxEditMode;
     std::vector<slider> sliders;
 
-
-private : 
+private:
     bool showGUI;
-    
-
 };
