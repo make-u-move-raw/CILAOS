@@ -6,11 +6,11 @@
 
 namespace Core
 {
-  static Application *s_Application = nullptr;
+  Application* Application::s_Application = nullptr;
 
-  Application::Application(const AppSpecification &specs) : m_specs(specs)
+  Application::Application(const AppSpecification &specs) : m_specs(specs), m_eventDispatcher(std::make_unique<EventDispatcher>()) 
   {
-    s_Application = this;
+    s_Application = this; // init the singleton
 
     m_specs.windowSpec.name = m_specs.Name;
     m_specs.windowSpec.targetFPS = m_specs.maxFPS;
@@ -40,7 +40,7 @@ namespace Core
       {
         stop();
         break;
-      }
+      } 
 
       double currentTime = GetTime();
       double timestep = lastTime - currentTime;
@@ -78,4 +78,9 @@ namespace Core
   }
 
   double Application::getTime() { return (double)GetTime(); }
+
+  void Application::dispatchEvents(Core::Event event)
+  {
+    m_eventDispatcher->dispatch(event);
+  }
 }

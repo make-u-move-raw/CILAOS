@@ -1,5 +1,6 @@
 #include "core/Application.hpp"
 #include "app/SceneLayer.hpp"
+#include "app/GuiLayer.hpp"
 
 int main()
 {
@@ -8,6 +9,7 @@ int main()
 
   Core::Application app(appSpecs);
   app.pushLayer<SceneLayer>();
+  app.pushLayer<GUIlayer>();
   app.run();
 
   return 0;

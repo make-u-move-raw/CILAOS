@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+#include "core/Application.hpp"
+
 /**
  * @struct Slider
  * @brief Struct to track easely all the sliders
@@ -28,13 +30,24 @@ class GUIlayer : public Core::Layer
 {
 public:
     GUIlayer();
+    virtual ~GUIlayer();
+
+    virtual void update(double dt) override;
+    virtual void render() override;
+    virtual void onEvent(Core::Event &event) {
+        std::cout << "Event recieved by the GUI"<< std::endl;    
+        }
+    virtual void stop();
+
+    void applySliderChanges(std::string name, float value);
     void renderGui();
     void toggleGUI();
     bool getShowGUI();
     char seed[24] = "SEED";
-    bool textBoxEditMode;
     std::vector<slider> sliders;
 
 private:
-    bool showGUI;
+    bool m_textBoxEditMode;
+
+    bool m_showGUI;
 };

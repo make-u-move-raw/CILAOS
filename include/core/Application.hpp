@@ -4,6 +4,8 @@
 #include <vector>
 #include "core/Layer.hpp"
 #include "core/Window.hpp"
+#include <iostream>
+#include "core/EventDispatcher.hpp" // event dispatcher to get all the event from the layers
 
 /**
  * @namespace Core
@@ -42,7 +44,9 @@ namespace Core
     AppSpecification m_specs;
     bool m_isRunning = false;
     std::shared_ptr<Window> m_window;
+    std::unique_ptr<EventDispatcher> m_eventDispatcher;
 
+    static Application *s_Application; // singleton to have access to all the event and keep the same instance
     std::vector<std::unique_ptr<Layer>> m_layers;
 
   public:
@@ -51,14 +55,22 @@ namespace Core
 
     void run();
     void stop();
+    EventDispatcher &getEventDispatcher() { return *m_eventDispatcher; }
 
     template <typename TLayer>
-    void pushLayer() { m_layers.push_back(std::make_unique<TLayer>()); }
+    void pushLayer()
+    {
+      // add the layers to the event dispatcher and to the app.
+      auto layer = std::make_unique<TLayer>();
+      m_eventDispatcher->addListener(layer.get());
+      m_layers.push_back(std::move(layer));
+    };
 
     void setZoom() {}
 
     static Application &getInstance();
     AppSpecification &getSpecs();
     static double getTime();
+    void dispatchEvents(Event event);
   };
 }

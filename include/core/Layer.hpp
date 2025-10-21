@@ -2,6 +2,7 @@
 
 #include "core/Event.hpp"
 
+
 namespace Core
 {
   /**
@@ -17,18 +18,21 @@ namespace Core
      * @param dt The timestep between two rendered frames
      */
     virtual void update(double dt) = 0;
+
     /**
      * @brief Called each time we need to render something
      */
     virtual void render() = 0;
+
     /**
      * @brief Destruction of OpenGL elements (VAO & VBO) and window
      */
     virtual void stop() = 0;
+
     /**
      * @brief Called each time an event is triggered, all of which are keyboard and mouse inputs for now
      * @param event The event that is triggered
      */
-    virtual void onEvent(Event &event) = 0;
+    virtual void onEvent(Event &event) =0;
   };
 }
