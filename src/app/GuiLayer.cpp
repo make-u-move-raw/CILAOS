@@ -1,3 +1,4 @@
+#include <math.h>
 #include "app/GuiLayer.hpp"
 
 GUIlayer::~GUIlayer()
