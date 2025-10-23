@@ -1,8 +1,9 @@
 #pragma once
 
-#include <vector>
 #include <cmath>
 #include <iostream>
+#include <vector>
+
 #include "external/PerlinNoise.hpp"
 
 const unsigned int DEFAULT_PERLIN_SEED = 123;
@@ -33,7 +34,6 @@ public:
     PerlinGenerator() { m_perlin.reseed(m_seed); }
     PerlinGenerator(unsigned int seed) : m_seed(seed) { m_perlin.reseed(m_seed); }
 
-
     /**
      * @brief all the setters for the parameters of the perlinNoise generation
      */
@@ -42,8 +42,8 @@ public:
     void setOctaves(int octaves) { m_octaveCount = octaves; }
     void setPersistence(float persistence) { m_persistence = persistence; }
     void setLacunarity(float lacunarity) { m_lacunarity = lacunarity; }
-    void setSeed(unsigned int seed) {m_seed= seed;}
-    
+    void setSeed(unsigned int seed) { m_seed = seed; }
+
     /**
      * @brief Get the seed of the perlin generation
      * @return The seed of

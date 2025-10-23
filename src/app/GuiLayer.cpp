@@ -1,11 +1,9 @@
 #include <math.h>
+
 #include "app/GuiLayer.hpp"
 
-GUIlayer::~GUIlayer()
-{
-}
-
-GUIlayer::GUIlayer()
+GUILayer::~GUILayer() {}
+GUILayer::GUILayer()
 {
     // sliders for noise scale, persistence, lacunarity, octaves
     sliders = {
@@ -18,31 +16,10 @@ GUIlayer::GUIlayer()
     m_textBoxEditMode = false;
 }
 
-/**
- * @brief this alow to toggle on and off the GUI
- */
-void GUIlayer::toggleGUI()
-{
-    this->m_showGUI = !this->m_showGUI;
-}
-
-/**
- * @brief getter for the bool showGUI
- * @return bool if we show the GUI or not
- */
-bool GUIlayer::getShowGUI()
-{
-    return this->m_showGUI;
-}
-
-/**
- * @brief apply all the changes of the sliders then dispach to the scene layer
- */
-
-void GUIlayer::applySliderChanges(std::string name, float Value)
+void GUILayer::applySliderChanges(std::string name, float Value)
 {
 
-    auto &app = Core::Application::getInstance();
+    auto &app = Application::getInstance();
 
     if (name == "Noise Scale")
     {
@@ -94,7 +71,7 @@ void GUIlayer::applySliderChanges(std::string name, float Value)
 /**
  * @brief This function renders all the sliders and the GUI elements it includes the backpanel, sliders, buttons, text input
  */
-void GUIlayer::renderGui()
+void GUILayer::renderGui()
 {
 
     int x = 90;
@@ -149,7 +126,7 @@ void GUIlayer::renderGui()
     }
 }
 
-void GUIlayer::render()
+void GUILayer::render()
 {
     if (m_showGUI)
     {
@@ -157,10 +134,47 @@ void GUIlayer::render()
     }
 }
 
-void GUIlayer::update(double dt)
+void GUILayer::onEvent(Core::Event &event)
 {
+    std::cout << "Event on the GUI Layer" << std::endl;
+
+    std::cout << "EVENT Type : ";
+    switch (event.type)
+    {
+    case Core::EventType::CHANGE_NOISESCALE:
+        std::cout << "noisecale" << std::endl;
+        m_terrain->setNoiseAmplitude(event.value);
+        break;
+    case Core::EventType::CHANGE_PERSISTENCE:
+        std::cout << "Persitence" << std::endl;
+        m_terrain->setNoisePersistence(event.value);
+        break;
+    case Core::EventType::CHANGE_LACUNARITY:
+        std::cout << "Lacunarity" << std::endl;
+        m_terrain->setNoiseLacunarity(event.value);
+        break;
+    case Core::EventType::CHANGE_FREQUENCY:
+        std::cout << "Frequency" << std::endl;
+        m_terrain->setNoiseFrequency(event.value);
+        break;
+    case Core::EventType::CHANGE_OCTAVES:
+        std::cout << "Octaves" << std::endl;
+        m_terrain->setNoiseOctaves(event.value);
+        break;
+    case Core::EventType::CHANGE_SEED:
+        std::cout << "Seed" << std::endl;
+        m_terrain->regenerateTerrain((unsigned int)event.value);
+        break;
+    case Core::EventType::REGENERATE:
+        std::cout << "Regenerate" << std::endl;
+
+        break;
+    case Core::EventType::SETTINGS:
+        std::cout << "Settings" << std::endl;
+        break;
+    }
+    m_terrain->regenerateTerrain(123124);
 }
 
-void GUIlayer::stop()
-{
-}
+void GUILayer::update(double dt) {}
+void GUILayer::stop() {}

@@ -1,9 +1,11 @@
 #pragma once
 
-#include "core/Event.hpp"
 #include "external/raylib/raylib.h"
 #include "external/raylib/raymath.h"
 #include "external/raylib/rlgl.h"
+
+#include "app/Context.hpp"
+#include "core/Event.hpp"
 #include "core/Layer.hpp"
 #include "core/Terrain.hpp"
 
@@ -59,16 +61,22 @@ public:
    * @brief Called each time an event is triggered, all of which are keyboard and mouse inputs for now
    * @param event The event that is triggered
    */
-  virtual void onEvent(Core::Event &event);
+  virtual void onEvent(Core::Event &event) override;
+
+  /**
+   * @brief Called once initialized to link the app context (shared data) between all different layers
+   * @param context The context of the app
+   */
+  virtual void setContext(std::shared_ptr<Context> context) override { m_terrain = context->terrain; }
 
   /**
    * @brief Destruction of OpenGL elements (VAO & VBO) and window
    */
-  virtual void stop();
+  virtual void stop() override;
 
 private:
   bool m_rotating = false;                                   // Flag for camera auto rotation around the model
-  Core::Terrain m_terrain;                                   // Terrain object for the scene
+  std::shared_ptr<Core::Terrain> m_terrain;                  // Shared terrain from the app context
   Camera3D m_camera;                                         // Camera object
   CameraSpecification m_cameraSpecs = CameraSpecification(); // Specifications for the camera (settings)
 

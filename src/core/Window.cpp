@@ -1,4 +1,5 @@
 #include "external/raylib/raylib.h"
+
 #include "core/Window.hpp"
 
 namespace Core

@@ -1,7 +1,9 @@
 #pragma once
-#include <vector>
-#include <functional>
+
 #include <algorithm>
+#include <functional>
+#include <vector>
+
 #include "core/Event.hpp"
 #include "core/Layer.hpp"
 

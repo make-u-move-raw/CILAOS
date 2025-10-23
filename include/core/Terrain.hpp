@@ -1,9 +1,11 @@
 #pragma once
 
 #include <vector>
-#include "core/PerlinGenerator.hpp"
+
 #include "external/raylib/raylib.h"
 #include "external/raylib/rlgl.h"
+
+#include "core/PerlinGenerator.hpp"
 
 const float TERRAIN_COORDINATE_SIZE = 10.0f; // The size in world coordinates to display the terrain
 const int DEFAULT_TERRAIN_SIZE = 100;        // The default terrain size
@@ -18,7 +20,7 @@ namespace Core
   class Terrain
   {
   private:
-    PerlinGenerator m_perlinGenerator;
+    PerlinGenerator m_perlinGenerator;  // Perlin generator (data for the terrain)
     bool m_wireFrame = false;           // Wireframe display flag
     double m_time = 0.0;                // The time associated with the class
     Vector3 m_pos = {0.0f, 0.0f, 0.0f}; // The position of the terrain in world coordinates

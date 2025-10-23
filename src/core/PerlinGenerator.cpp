@@ -1,4 +1,5 @@
 #include <algorithm>
+
 #include "core/PerlinGenerator.hpp"
 
 float PerlinGenerator::generatePerlinHeight(const float x, const float y, const float maxHeight)
