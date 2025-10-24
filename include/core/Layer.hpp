@@ -1,7 +1,7 @@
 #pragma once
 
+#include "app/Context.hpp"
 #include "core/Event.hpp"
-
 
 namespace Core
 {
@@ -33,6 +33,12 @@ namespace Core
      * @brief Called each time an event is triggered, all of which are keyboard and mouse inputs for now
      * @param event The event that is triggered
      */
-    virtual void onEvent(Event &event) =0;
+    virtual void onEvent(Event &event) = 0;
+
+    /**
+     * @brief Called once initialized to link the app context (shared data) between all different layers
+     * @param context The context of the app
+     */
+    virtual void setContext(std::shared_ptr<Context> context) = 0;
   };
 }

@@ -1,6 +1,7 @@
-#include "core/Terrain.hpp"
-#include <math.h>
 #include <iostream>
+#include <math.h>
+
+#include "core/Terrain.hpp"
 
 namespace Core
 {

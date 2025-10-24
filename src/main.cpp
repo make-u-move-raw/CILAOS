@@ -1,15 +1,15 @@
-#include "core/Application.hpp"
+#include "app/Application.hpp"
 #include "app/SceneLayer.hpp"
 #include "app/GuiLayer.hpp"
 
 int main()
 {
-  Core::AppSpecification appSpecs;
+  AppSpecification appSpecs;
   appSpecs.Name = "Cilaos v0.1";
 
-  Core::Application app(appSpecs);
+  Application app(appSpecs);
   app.pushLayer<SceneLayer>();
-  app.pushLayer<GUIlayer>();
+  app.pushLayer<GUILayer>();
   app.run();
 
   return 0;
