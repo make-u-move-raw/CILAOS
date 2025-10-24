@@ -2,6 +2,9 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <math.h>
+
+
 
 #include "external/raylib/raylib.h"
 #include "external/raylib/raygui.h"

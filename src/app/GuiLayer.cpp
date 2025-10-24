@@ -1,4 +1,3 @@
-#include <math.h>
 
 #include "app/GuiLayer.hpp"
 
@@ -16,56 +15,75 @@ GUILayer::GUILayer()
     m_textBoxEditMode = false;
 }
 
-void GUILayer::applySliderChanges(std::string name, float Value)
+void GUILayer::applySliderChanges(std::string name, float value)
 {
-
     auto &app = Application::getInstance();
+
+    if (!m_terrain)
+    {
+        std::cerr << "Error: m_terrain is null in GUILayer::applySliderChanges" << std::endl;
+        return;
+    }
 
     if (name == "Noise Scale")
     {
-        Core::EventType eventType = Core::EventType::CHANGE_NOISESCALE;
-        std::string name = "Noise Scale";
-        Core::Event event(eventType, name, Value);
-
-        app.dispatchEvents(event);
+        std::cout << "Updating Noise Scale to " << value << std::endl;
+        m_terrain->setNoiseAmplitude(value);
     }
     else if (name == "Persistence")
     {
-        Core::EventType eventType = Core::EventType::CHANGE_PERSISTENCE;
-        std::string name = "Persistene";
-        Core::Event event(eventType, name, Value);
-        app.dispatchEvents(event);
+        std::cout << "Updating Persistence to " << value << std::endl;
+        m_terrain->setNoisePersistence(value);
     }
     else if (name == "Lacunarity")
     {
-        Core::EventType eventType = Core::EventType::CHANGE_LACUNARITY;
-        std::string name = "Lacunarity";
-        Core::Event event(eventType, name, Value);
-
-        app.dispatchEvents(event);
+        std::cout << "Updating Lacunarity to " << value << std::endl;
+        m_terrain->setNoiseLacunarity(value);
     }
     else if (name == "Frequency")
     {
-        Core::EventType eventType = Core::EventType::CHANGE_FREQUENCY;
-        std::string name = "Frequency";
-        Core::Event event(eventType, name, Value);
-
-        app.dispatchEvents(event);
+        std::cout << "Updating Frequency to " << value << std::endl;
+        m_terrain->setNoiseFrequency(value);
     }
     else if (name == "Octaves")
     {
-        Core::EventType eventType = Core::EventType::CHANGE_OCTAVES;
-        std::string name = "Octaves";
-        Core::Event event(eventType, name, Value);
-        app.dispatchEvents(event);
+        std::cout << "Updating Octaves to " << value << std::endl;
+        m_terrain->setNoiseOctaves(value);
     }
     else if (name == "Seed")
     {
-        Core::EventType eventType = Core::EventType::CHANGE_SEED;
-        std::string name = "Seed";
-        Core::Event event(eventType, name, Value);
-        app.dispatchEvents(event);
+        std::cout << "seed value " <<value<< std::endl;
+        std::cout << "Regenerating terrain with seed " << static_cast<unsigned int>(value) << std::endl;
+        m_terrain->setSeed(static_cast<unsigned int>(value));
     }
+
+    // call the event to regenerate the terrain
+    Core::EventType eventType = Core::EventType::REGENERATE;
+    Core::Event event(eventType,"SceneLayer","GuiLayer"); 
+    app.dispatchEvents(event);
+}
+
+float getSeedFromString(const char* seedStr)
+{
+    std::string str(seedStr);
+
+    // Try to convert the seed to the value
+    float value = std::atof(seedStr);
+    // if it's a word atof returns 0.0
+    if (value != 0.0f) {
+        return value;
+    }
+    
+
+    float asciiSeed = 0.0f;
+    int multiplier = 1;
+    // we take the word then convert it to ascii to have a float
+    for (char c : str) {
+        asciiSeed += static_cast<int>(c) * multiplier;
+        multiplier *= 256;
+    }
+
+    return asciiSeed;
 }
 
 /**
@@ -86,11 +104,9 @@ void GUILayer::renderGui()
 
     for (auto &slider : sliders)
     {
-        // bug all the event are called.
         if (GuiSlider(bounds, slider.name.c_str(), NULL, &slider.value, slider.minValue, slider.maxValue))
         {
             applySliderChanges(slider.name, slider.value);
-            std::cout << "AHHHHHH" << std::endl;
         }
         if (slider.isInteger)
         {
@@ -103,7 +119,6 @@ void GUILayer::renderGui()
             // if it's a float
             DrawText(TextFormat("%.2f", slider.value), x + width + 5, y + 5, 12, BLACK);
         }
-
         // padding between each slider
         y += 40;
         bounds = {(float)x, (float)y, (float)width, (float)height};
@@ -120,9 +135,8 @@ void GUILayer::renderGui()
     // Draw Regenerate button
     if (GuiButton(bounds, "Regenerate"))
     {
-        // when clicked send a
-        std::cout << "ahhhh" << std::endl;
-        applySliderChanges("Seed", 0.0);
+        // when clicked send seed
+        applySliderChanges("Seed", getSeedFromString(this->seed));
     }
 }
 
@@ -134,46 +148,12 @@ void GUILayer::render()
     }
 }
 
+/**
+ * @brief Handles GUI-related events and updates the terrain parameters accordingly.
+ * @param event Reference to the event to be processed.
+ */
 void GUILayer::onEvent(Core::Event &event)
 {
-    std::cout << "Event on the GUI Layer" << std::endl;
-
-    std::cout << "EVENT Type : ";
-    switch (event.type)
-    {
-    case Core::EventType::CHANGE_NOISESCALE:
-        std::cout << "noisecale" << std::endl;
-        m_terrain->setNoiseAmplitude(event.value);
-        break;
-    case Core::EventType::CHANGE_PERSISTENCE:
-        std::cout << "Persitence" << std::endl;
-        m_terrain->setNoisePersistence(event.value);
-        break;
-    case Core::EventType::CHANGE_LACUNARITY:
-        std::cout << "Lacunarity" << std::endl;
-        m_terrain->setNoiseLacunarity(event.value);
-        break;
-    case Core::EventType::CHANGE_FREQUENCY:
-        std::cout << "Frequency" << std::endl;
-        m_terrain->setNoiseFrequency(event.value);
-        break;
-    case Core::EventType::CHANGE_OCTAVES:
-        std::cout << "Octaves" << std::endl;
-        m_terrain->setNoiseOctaves(event.value);
-        break;
-    case Core::EventType::CHANGE_SEED:
-        std::cout << "Seed" << std::endl;
-        m_terrain->regenerateTerrain((unsigned int)event.value);
-        break;
-    case Core::EventType::REGENERATE:
-        std::cout << "Regenerate" << std::endl;
-
-        break;
-    case Core::EventType::SETTINGS:
-        std::cout << "Settings" << std::endl;
-        break;
-    }
-    m_terrain->regenerateTerrain(123124);
 }
 
 void GUILayer::update(double dt) {}

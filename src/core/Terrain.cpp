@@ -108,10 +108,10 @@ namespace Core
     std::cout << "INFO: Generated custom terrain of side " << m_size << std::endl;
   }
 
-  void Terrain::regenerateTerrain(const unsigned int newSeed)
+  void Terrain::regenerateTerrain()
   {
     std::cout << "INFO: Regenerating terrain" << std::endl;
-    m_perlinGenerator.generateNewSeed(newSeed);
+    m_perlinGenerator.generateNewSeed(m_seed);
     if (!generated)
     {
       generateCustomTerrain();
@@ -129,7 +129,7 @@ namespace Core
       }
     }
 
-    std::cout << "INFO: Generated new terrain with seed : " << newSeed << std::endl;
+    std::cout << "INFO: Generated new terrain with seed : " << m_seed << std::endl;
     UpdateMeshBuffer(m_mesh, 0, m_mesh.vertices, m_mesh.vertexCount * 3 * sizeof(float), 0);
   }
 

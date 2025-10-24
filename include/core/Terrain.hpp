@@ -28,7 +28,7 @@ namespace Core
     Model m_model = {0};                // The model of the terrain
     int m_size = DEFAULT_TERRAIN_SIZE;  // The number of sub squares of the terrain (precision)
     std::vector<float> m_baseHeights;   // The list of base heights for each current vertex
-
+    unsigned int m_seed;
   public:
     bool generated = false;
 
@@ -49,8 +49,13 @@ namespace Core
      * This method can become quite costly if a lot of vertices are generated :
      * don't call it too often try using `update(...)` instead
      */
-    void regenerateTerrain(const unsigned int newSeed);
+    void regenerateTerrain();
 
+    /**
+     * @brief setter for the m_seed
+     * @param seed 
+     */
+    void setSeed(unsigned int seed) {this->m_seed = seed;}
     /**
      * @brief Update method to be called for physics or data management.
      *

@@ -75,7 +75,8 @@ void SceneLayer::m_handleInputs(double dt)
     std::mt19937 gen(std::chrono::high_resolution_clock::now().time_since_epoch().count());
     std::uniform_int_distribution<unsigned int> distrib(0, 4294967295);
     unsigned int randomSeed = distrib(gen);
-    m_terrain->regenerateTerrain(randomSeed);
+    m_terrain->setSeed(randomSeed);
+    m_terrain->regenerateTerrain();
   }
 }
 
@@ -120,4 +121,12 @@ void SceneLayer::m_handleCamera(double dt)
   m_camera.target = m_terrain->getPos();
 }
 
-void SceneLayer::onEvent(Core::Event &event) {}
+void SceneLayer::onEvent(Core::Event &event)
+{
+
+  if (event.type == Core::EventType::REGENERATE)
+  {
+    m_terrain->regenerateTerrain();
+    std::cout << "from " << event.senderName << "to " << event.target << std::endl;
+  }
+}
