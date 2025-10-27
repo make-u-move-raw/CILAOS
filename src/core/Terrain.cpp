@@ -34,23 +34,14 @@ namespace Core
 
           break;
         }
-
-        // Wave animation
-        m_mesh.vertices[3 * vIndex + 1] = std::max(base + A * cosf(omega * m_time + 0.04 * (i + j)), 0.0f);
       }
-
-      elapsedTime = 0.0;
-      // Re compute normals
-      // calculateNormals();
-
-      // Re-upload new vertices data to GPU
-      // UpdateMeshBuffer(m_mesh, 0, m_mesh.vertices, m_mesh.vertexCount * 3 * sizeof(float), 0);
-      // UpdateMeshBuffer(m_mesh, 2, m_mesh.normals, m_mesh.vertexCount * 3 * sizeof(float), 0);
     }
+    elapsedTime = 0.0;
   }
 
   void Terrain::render()
   {
+    m_model.materials[0].shader = m_shader;
     if (m_wireFrame)
       DrawModelWires(m_model, m_pos, 1.0f, GREEN);
     else
@@ -63,7 +54,8 @@ namespace Core
     mesh.triangleCount = 2 * m_size * m_size;       // 2 Triangles for each square (m_size being the nb of squares)
     mesh.vertexCount = (m_size + 1) * (m_size + 1); // for n² squares, there are (n+1)² points
 
-    m_baseHeights.resize(mesh.vertexCount, 0.0f);
+    m_baseHeights.resize(mesh.vertexCount);
+    m_colors.resize(mesh.vertexCount);
 
     // free previously allocated memory
     if (generated)
@@ -81,24 +73,35 @@ namespace Core
     {
       for (int j = 0; j <= m_size; j++)
       {
-        float height = std::max(0.0f, m_perlinGenerator.generateFractalPerlinHeight(i, j, 12.0f));
-        Color heightColor = m_generateHeightColor(height);
-
         int vIndex = i * (m_size + 1) + j;
+        float height = std::max(0.0f, m_perlinGenerator.generateFractalPerlinHeight(i, j, 12.0f));
+        setBaseHeight(i, j, height);
+
         mesh.vertices[3 * vIndex + 0] = -TERRAIN_COORDINATE_SIZE + j * step; // x
         mesh.vertices[3 * vIndex + 1] = height;                              // y
         mesh.vertices[3 * vIndex + 2] = -TERRAIN_COORDINATE_SIZE + i * step; // z
+      }
+    }
 
-        mesh.normals[3 * vIndex + 0] = 0.0f;
-        mesh.normals[3 * vIndex + 1] = 1.0f;
-        mesh.normals[3 * vIndex + 2] = 0.0f;
+    // Computing new colors and normals
+    for (int i = 0; i <= m_size; i++)
+    {
+      for (int j = 0; j <= m_size; j++)
+      {
+        int vIndex = i * (m_size + 1) + j;
+        float height = getBaseHeight(i, j);
+        Vector3 normal = m_computeNormalAt(i, j);
+        Color heightColor = m_generateHeightColor(height, normal);
+        setColor(i, j, heightColor);
+
+        mesh.normals[3 * vIndex + 0] = normal.x; // x
+        mesh.normals[3 * vIndex + 1] = normal.y; // y
+        mesh.normals[3 * vIndex + 2] = normal.z; // z
 
         mesh.colors[4 * vIndex + 0] = heightColor.r;
         mesh.colors[4 * vIndex + 1] = heightColor.g;
         mesh.colors[4 * vIndex + 2] = heightColor.b;
         mesh.colors[4 * vIndex + 3] = heightColor.a;
-
-        m_baseHeights[vIndex] = mesh.vertices[3 * vIndex + 1]; // Register freshly generated heights to base heights
       }
     }
 
@@ -127,8 +130,7 @@ namespace Core
 
     // Upload mesh data from CPU (RAM) to GPU (VRAM) memory
     m_mesh = mesh;
-
-    std::cout << "INFO: Generated custom terrain of side " << m_size << std::endl;
+    std::cout << "INFO: Generated custom terrain of side " << m_size << " and seed " << m_perlinGenerator.getSeed() << std::endl;
   }
 
   void Terrain::regenerateTerrain(const unsigned int newSeed)
@@ -141,26 +143,41 @@ namespace Core
       return;
     }
 
+    // Regenrating heights
     for (int i = 0; i <= m_size; i++)
     {
       for (int j = 0; j <= m_size; j++)
       {
         int vIndex = i * (m_size + 1) + j;
         float newHeight = std::max(0.0f, m_perlinGenerator.generateFractalPerlinHeight(i, j, 12.0f));
+        setBaseHeight(i, j, newHeight);
         m_mesh.vertices[3 * vIndex + 1] = newHeight;
+      }
+    }
 
-        Color heightColor = m_generateHeightColor(newHeight);
+    // Computing new colors and normals
+    for (int i = 0; i <= m_size; i++)
+    {
+      for (int j = 0; j <= m_size; j++)
+      {
+        int vIndex = i * (m_size + 1) + j;
+        float height = getBaseHeight(i, j);
+        Vector3 normal = m_computeNormalAt(i, j);
+        Color heightColor = m_generateHeightColor(height, normal);
+        setColor(i, j, heightColor);
+
+        m_mesh.normals[3 * vIndex + 0] = normal.x; // x
+        m_mesh.normals[3 * vIndex + 1] = normal.y; // y
+        m_mesh.normals[3 * vIndex + 2] = normal.z; // z
+
         m_mesh.colors[4 * vIndex + 0] = heightColor.r;
         m_mesh.colors[4 * vIndex + 1] = heightColor.g;
         m_mesh.colors[4 * vIndex + 2] = heightColor.b;
         m_mesh.colors[4 * vIndex + 3] = heightColor.a;
-        setBaseHeight(i, j, newHeight);
       }
     }
-    calculateNormals();
 
-    std::cout
-        << "INFO: Generated new terrain with seed : " << newSeed << std::endl;
+    std::cout << "INFO: Generated new terrain with seed : " << newSeed << std::endl;
     UpdateMeshBuffer(m_mesh, 0, m_mesh.vertices, m_mesh.vertexCount * 3 * sizeof(float), 0);
     UpdateMeshBuffer(m_mesh, 2, m_mesh.normals, m_mesh.vertexCount * 3 * sizeof(float), 0);
     UpdateMeshBuffer(m_mesh, 3, m_mesh.colors, m_mesh.vertexCount * 4 * sizeof(unsigned char), 0);
@@ -173,15 +190,17 @@ namespace Core
     generated = true;
   }
 
-  void Terrain::setBaseHeights(const std::vector<float> &newHeights)
+  void Terrain::setColor(int i, int j, Color newCol)
   {
-    m_baseHeights.resize(newHeights.size());
-
-    for (int i = 0; i < m_mesh.vertexCount; i++)
+    if (i < 0 || i > m_size || j < 0 || j > m_size)
     {
-      m_baseHeights[i] = newHeights[i];
-      m_mesh.vertices[3 * i + 1] = newHeights[i];
+      std::cout << "ERROR: Vertex indices out of bound : " << i * (m_size + 1) + j << "(" << i << "," << j << ")" << std::endl;
+      std::cout << "Size of map is " << m_size << " with " << sizeof(m_mesh.vertices) << " associated vertices and " << sizeof(m_mesh.indices) << " indices";
+      return;
     }
+
+    int vIndex = i * (m_size + 1) + j;
+    m_colors[vIndex] = newCol;
   }
 
   void Terrain::setBaseHeight(int i, int j, float newHeight)
@@ -209,68 +228,59 @@ namespace Core
       m_size = size;
   }
 
-  Color Terrain::m_generateHeightColor(float height)
+  Color Terrain::m_generateHeightColor(float height, const Vector3 &normal)
   {
+    // Calculate steepness from normal (1.0 = flat, 0.0 = vertical)
+    float steepness = 1.0f - normal.y;
+
     Color heightColor;
-    if (height <= 1.0f)
+
+    // Base colors by height
+    if (height <= 0.01f)
       heightColor = WATER_COLOR;
-    else if (height > 1.0f && height <= 2.0f)
+    else if (height > 0.01f && height <= 1.5f && steepness <= 0.2f)
       heightColor = SAND_COLOR;
-    else if (height > 2.0f && height <= 5.0f)
+    else if (height > 1.5f && height <= 7.0f)
       heightColor = FOREST_COLOR;
-    else if (height > 5.0f && height <= 11.0f)
+    else if (height > 7.0f && height <= 11.0f)
       heightColor = ROCK_COLOR;
     else if (height > 11.0f && height <= 12.0f)
       heightColor = SNOW_COLOR;
 
+    if (steepness > 0.2f)
+    {
+      if (height <= 11.0f)
+        heightColor = ROCK_COLOR;
+      else
+        heightColor = SNOW_COLOR;
+    }
+
     return heightColor;
   }
 
-  void Terrain::calculateNormals()
+  Vector3 Terrain::m_computeNormalAt(int i, int j)
   {
-    // Reset all normals to zero
-    for (int i = 0; i < m_mesh.vertexCount * 3; i++)
-    {
-      m_mesh.normals[i] = 0.0f;
-    }
+    // Get heights of neighboring vertices (with boundary handling)
+    float centerHeight = getBaseHeight(i, j);
 
-    // Calculate face normals and accumulate to vertex normals
-    for (int i = 0; i < m_mesh.triangleCount; i++)
-    {
-      int idx0 = m_mesh.indices[i * 3 + 0];
-      int idx1 = m_mesh.indices[i * 3 + 1];
-      int idx2 = m_mesh.indices[i * 3 + 2];
+    float rightHeight = (j < m_size) ? getBaseHeight(i, j + 1) : centerHeight;
+    float leftHeight = (j > 0) ? getBaseHeight(i, j - 1) : centerHeight;
+    float topHeight = (i > 0) ? getBaseHeight(i - 1, j) : centerHeight;
+    float bottomHeight = (i < m_size) ? getBaseHeight(i + 1, j) : centerHeight;
 
-      Vector3 v0 = {m_mesh.vertices[idx0 * 3 + 0], m_mesh.vertices[idx0 * 3 + 1], m_mesh.vertices[idx0 * 3 + 2]};
-      Vector3 v1 = {m_mesh.vertices[idx1 * 3 + 0], m_mesh.vertices[idx1 * 3 + 1], m_mesh.vertices[idx1 * 3 + 2]};
-      Vector3 v2 = {m_mesh.vertices[idx2 * 3 + 0], m_mesh.vertices[idx2 * 3 + 1], m_mesh.vertices[idx2 * 3 + 2]};
+    // Calculate the gradient using finite differences
+    float step = (2.0f * TERRAIN_COORDINATE_SIZE) / (float)m_size;
 
-      Vector3 edge1 = Vector3Subtract(v1, v0);
-      Vector3 edge2 = Vector3Subtract(v2, v0);
-      Vector3 normal = Vector3CrossProduct(edge1, edge2);
+    float dx = (rightHeight - leftHeight) / (2.0f * step);
+    float dz = (bottomHeight - topHeight) / (2.0f * step);
 
-      // Accumulate normal to all three vertices
-      m_mesh.normals[idx0 * 3 + 0] += normal.x;
-      m_mesh.normals[idx0 * 3 + 1] += normal.y;
-      m_mesh.normals[idx0 * 3 + 2] += normal.z;
+    // The normal is (-dx, 1, -dz) normalized
+    Vector3 normal = {-dx, 1.0f, -dz};
+    normal = Vector3Normalize(normal);
 
-      m_mesh.normals[idx1 * 3 + 0] += normal.x;
-      m_mesh.normals[idx1 * 3 + 1] += normal.y;
-      m_mesh.normals[idx1 * 3 + 2] += normal.z;
+    // Update the mesh's normal array for this vertex
+    int vIndex = i * (m_size + 1) + j;
 
-      m_mesh.normals[idx2 * 3 + 0] += normal.x;
-      m_mesh.normals[idx2 * 3 + 1] += normal.y;
-      m_mesh.normals[idx2 * 3 + 2] += normal.z;
-    }
-
-    // Normalize all vertex normals
-    for (int i = 0; i < m_mesh.vertexCount; i++)
-    {
-      Vector3 normal = {m_mesh.normals[i * 3 + 0], m_mesh.normals[i * 3 + 1], m_mesh.normals[i * 3 + 2]};
-      normal = Vector3Normalize(normal);
-      m_mesh.normals[i * 3 + 0] = normal.x;
-      m_mesh.normals[i * 3 + 1] = normal.y;
-      m_mesh.normals[i * 3 + 2] = normal.z;
-    }
+    return normal;
   }
 }

@@ -27,16 +27,20 @@ namespace Core
   class Terrain
   {
   private:
-    PerlinGenerator m_perlinGenerator;
-    bool m_wireFrame = false;           // Wireframe display flag
-    double m_time = 0.0;                // The time associated with the class
-    Vector3 m_pos = {0.0f, 0.0f, 0.0f}; // The position of the terrain in world coordinates
-    Mesh m_mesh = {0};                  // The mesh of the terrain
-    Model m_model = {0};                // The model of the terrain
-    int m_size = DEFAULT_TERRAIN_SIZE;  // The number of sub squares of the terrain (precision)
-    std::vector<float> m_baseHeights;   // The list of base heights for each current vertex
+    Shader m_shader = LoadShader(TextFormat("src/core/shaders/terrain.vs", 330),
+                                 TextFormat("src/core/shaders/terrain.fs", 330)); // Shader for interacting with positions/textures/normals/colors of the terrain mesh
+    PerlinGenerator m_perlinGenerator = 0;                                        // Perlin generator object associated with the terrain
+    bool m_wireFrame = false;                                                     // Wireframe display flag
+    double m_time = 0.0;                                                          // The time associated with the class
+    Vector3 m_pos = {0.0f, 0.0f, 0.0f};                                           // The position of the terrain in world coordinates
+    Mesh m_mesh = {0};                                                            // The mesh of the terrain
+    Model m_model = {0};                                                          // The model of the terrain
+    int m_size = DEFAULT_TERRAIN_SIZE;                                            // The number of sub squares of the terrain (precision)
+    std::vector<float> m_baseHeights;                                             // The list of heights for each current vertex
+    std::vector<Color> m_colors;                                                  // The list of colors for each current vertex
 
-    Color m_generateHeightColor(float height);
+    Color m_generateHeightColor(float height, const Vector3 &normal);
+    Vector3 m_computeNormalAt(int i, int j);
 
   public:
     bool generated = false;
@@ -93,6 +97,11 @@ namespace Core
     Mesh getMesh() const { return m_mesh; }
 
     /**
+     * @brief Get the model of the terrain
+     */
+    Model getModel() { return m_model; }
+
+    /**
      * @brief Get the current side size of terrain (nb of squares on a side)
      */
     int getSideSize() const { return m_size; }
@@ -113,14 +122,21 @@ namespace Core
     int getNbTriangles() const { return m_mesh.triangleCount; }
 
     /**
-     * @brief Get the list of registered base heights of the current mesh
-     */
-    std::vector<float> getBaseHeights() const { return m_baseHeights; }
-    /**
      * @brief Get the base height of a vertex registered when generating the model
      * @return The height of the vertex at (i,j) in the terrain grid
+     * @param i The row position
+     * @param j The column position
      */
     float getBaseHeight(int i, int j) const { return m_baseHeights[i * (m_size + 1) + j]; }
+
+    /**
+     * @brief Get the lastly generated color of a vertex
+     * @return The color of the vertex at (i,j) in the terrain grid
+     * @param i The row position
+     * @param j The column position
+     */
+    Color getColor(int i, int j) const { return m_colors[i * (m_size + 1) + j]; }
+
     /**
      * @brief Get the position of the model mesh
      * @return The position of the model
@@ -128,15 +144,16 @@ namespace Core
     Vector3 getPos() const { return m_pos; }
 
     /**
+     * @brief Get the linked shader of the terrain
+     * @return The shader of the terrain
+     */
+    Shader getShader() const { return m_shader; }
+
+    /**
      * @brief Set a new size (which is size*size nb of squares in the board) it translates to terrain precision
      * @param size The new side to associate the terrain with
      */
     void setSize(const int size);
-    /**
-     * @brief Set the base heights with new values
-     * @param newHeights The vector of heights to set
-     */
-    void setBaseHeights(const std::vector<float> &newHeights);
 
     /**
      * @brief Set the base height of a specific vertex (it is the world coordinate reference when rendering statically)
@@ -145,6 +162,14 @@ namespace Core
      * @param newHeight The new value for the height
      */
     void setBaseHeight(int i, int j, float newHeight);
+
+    /**
+     * @brief Set the color of a specific vertex (it is the world coordinate reference when rendering statically)
+     * @param i The row nb of the vertex in the plane
+     * @param j The col nb of the vertex in the plane
+     * @param newCol The new value for the color
+     */
+    void setColor(int i, int j, Color newCol);
 
     /**
      * @brief Upload currently linked mesh and load model to GPU
@@ -160,9 +185,5 @@ namespace Core
      * @brief Change the render mode to wireFrame or normal
      */
     void switchRenderMode() { m_wireFrame = !m_wireFrame; }
-
-    void calculateNormals();
-
-    Model getModel() { return m_model; }
   };
 }
