@@ -1,13 +1,21 @@
-#include "core/Terrain.hpp"
-#include <math.h>
 #include <iostream>
+#include <math.h>
+
+#include "core/Terrain.hpp"
 
 namespace Core
 {
   void Terrain::update(double dt)
   {
+    static double elapsedTime = 0.0;
+    if (elapsedTime < FIXED_TIMESTEP)
+    {
+      elapsedTime += dt;
+      return;
+    }
+
     m_time += dt;
-    float omega = 1.0f;
+    float omega = 10.0f;
     float A = 0.7f;
 
     if (!generated)
@@ -32,6 +40,7 @@ namespace Core
 
     // Re-upload new heights to GPU
     UpdateMeshBuffer(m_mesh, 0, m_mesh.vertices, m_mesh.vertexCount * 3 * sizeof(float), 0);
+    elapsedTime = 0.0;
   }
 
   void Terrain::render()
@@ -57,6 +66,7 @@ namespace Core
     mesh.vertices = (float *)MemAlloc(mesh.vertexCount * 3 * sizeof(float));                    // 3 coordinates for each vertex (x, y, z)
     mesh.normals = (float *)MemAlloc(mesh.vertexCount * 3 * sizeof(float));                     // 3 coordinates for each vertex (x, y, z)}
     mesh.indices = (unsigned short *)MemAlloc(mesh.triangleCount * 3 * sizeof(unsigned short)); // 3 indices per triangle
+    mesh.colors = (unsigned char *)MemAlloc(mesh.vertexCount * 4 * sizeof(unsigned char));      // R, G, B, A per vertex
     // Maybe add textures and colors ?
 
     // ---- vertices ----
@@ -65,14 +75,22 @@ namespace Core
     {
       for (int j = 0; j <= m_size; j++)
       {
+        float height = std::max(0.0f, m_perlinGenerator.generateFractalPerlinHeight(i, j, 12.0f));
+        Color heightColor = m_generateHeightColor(height);
+
         int vIndex = i * (m_size + 1) + j;
-        mesh.vertices[3 * vIndex + 0] = -TERRAIN_COORDINATE_SIZE + j * step;                                        // x
-        mesh.vertices[3 * vIndex + 1] = std::max(0.0f, m_perlinGenerator.generateFractalPerlinHeight(i, j, 12.0f)); // y
-        mesh.vertices[3 * vIndex + 2] = -TERRAIN_COORDINATE_SIZE + i * step;                                        // z
+        mesh.vertices[3 * vIndex + 0] = -TERRAIN_COORDINATE_SIZE + j * step; // x
+        mesh.vertices[3 * vIndex + 1] = height;                              // y
+        mesh.vertices[3 * vIndex + 2] = -TERRAIN_COORDINATE_SIZE + i * step; // z
 
         mesh.normals[3 * vIndex + 0] = 0.0f;
         mesh.normals[3 * vIndex + 1] = 1.0f;
         mesh.normals[3 * vIndex + 2] = 0.0f;
+
+        mesh.colors[4 * vIndex + 0] = heightColor.r;
+        mesh.colors[4 * vIndex + 1] = heightColor.g;
+        mesh.colors[4 * vIndex + 2] = heightColor.b;
+        mesh.colors[4 * vIndex + 3] = heightColor.a;
 
         m_baseHeights[vIndex] = mesh.vertices[3 * vIndex + 1]; // Register freshly generated heights to base heights
       }
@@ -124,12 +142,19 @@ namespace Core
         int vIndex = i * (m_size + 1) + j;
         float newHeight = std::max(0.0f, m_perlinGenerator.generateFractalPerlinHeight(i, j, 12.0f));
         m_mesh.vertices[3 * vIndex + 1] = newHeight;
+
+        Color heightColor = m_generateHeightColor(newHeight);
+        m_mesh.colors[4 * vIndex + 0] = heightColor.r;
+        m_mesh.colors[4 * vIndex + 1] = heightColor.g;
+        m_mesh.colors[4 * vIndex + 2] = heightColor.b;
+        m_mesh.colors[4 * vIndex + 3] = heightColor.a;
         setBaseHeight(i, j, newHeight);
       }
     }
 
     std::cout << "INFO: Generated new terrain with seed : " << newSeed << std::endl;
     UpdateMeshBuffer(m_mesh, 0, m_mesh.vertices, m_mesh.vertexCount * 3 * sizeof(float), 0);
+    UpdateMeshBuffer(m_mesh, 3, m_mesh.colors, m_mesh.vertexCount * 4 * sizeof(unsigned char), 0);
   }
 
   void Terrain::load()
@@ -173,5 +198,22 @@ namespace Core
     }
     else
       m_size = size;
+  }
+
+  Color Terrain::m_generateHeightColor(float height)
+  {
+    Color heightColor;
+    if (height <= 1.0f)
+      heightColor = WATER_COLOR;
+    else if (height > 1.0f && height <= 2.0f)
+      heightColor = SAND_COLOR;
+    else if (height > 2.0f && height <= 5.0f)
+      heightColor = FOREST_COLOR;
+    else if (height > 5.0f && height <= 11.0f)
+      heightColor = ROCK_COLOR;
+    else if (height > 11.0f && height <= 12.0f)
+      heightColor = SNOW_COLOR;
+
+    return heightColor;
   }
 }

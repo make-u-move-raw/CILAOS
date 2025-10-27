@@ -9,6 +9,14 @@ const float TERRAIN_COORDINATE_SIZE = 10.0f; // The size in world coordinates to
 const int DEFAULT_TERRAIN_SIZE = 100;        // The default terrain size
 const int MAX_TERRAIN_SIZE = 254;            // The maximum terrain size (number of vertices limited to 65 535)
 
+const double FIXED_TIMESTEP = 0.02; // The timestep for fixed updates (in seconds)
+
+const Color WATER_COLOR = {117, 223, 255, 255}; // Vertex color for water
+const Color SAND_COLOR = {255, 220, 135, 255};  // Vertex color for sand
+const Color FOREST_COLOR = {47, 164, 39, 255};  // Vertex color for forest
+const Color ROCK_COLOR = {150, 150, 125, 255};  // Vertex color for rocks
+const Color SNOW_COLOR = {238, 238, 238, 255};  // Vertex color for snow
+
 namespace Core
 {
   /**
@@ -26,6 +34,8 @@ namespace Core
     Model m_model = {0};                // The model of the terrain
     int m_size = DEFAULT_TERRAIN_SIZE;  // The number of sub squares of the terrain (precision)
     std::vector<float> m_baseHeights;   // The list of base heights for each current vertex
+
+    Color m_generateHeightColor(float height);
 
   public:
     bool generated = false;

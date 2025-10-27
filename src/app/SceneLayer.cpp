@@ -102,15 +102,15 @@ void SceneLayer::m_handleCameraInputs(double dt)
   if (r > m_cameraSpecs.maxDist)
     wheelZoom = std::min(wheelZoom, 0.0f);
 
-  UpdateCameraPro(&m_camera, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, wheelZoom);
+  UpdateCameraPro(&m_camera, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, -wheelZoom);
   if (IsKeyDown(KEY_S))
-    UpdateCameraPro(&m_camera, {0.0f, 0.0f, m_cameraSpecs.rotY * (float)dt}, {0.0f, 0.0f, 0.0f}, 0.0f);
-  if (IsKeyDown(KEY_W))
     UpdateCameraPro(&m_camera, {0.0f, 0.0f, -m_cameraSpecs.rotY * (float)dt}, {0.0f, 0.0f, 0.0f}, 0.0f);
+  if (IsKeyDown(KEY_W))
+    UpdateCameraPro(&m_camera, {0.0f, 0.0f, m_cameraSpecs.rotY * (float)dt}, {0.0f, 0.0f, 0.0f}, 0.0f);
   if (IsKeyDown(KEY_D))
-    UpdateCameraPro(&m_camera, {0.0f, r * m_cameraSpecs.moveSpeed * (float)dt, 0.0f}, {0.0f, 0.0f, 0.0f}, 0.0f);
-  if (IsKeyDown(KEY_A))
     UpdateCameraPro(&m_camera, {0.0f, r * -m_cameraSpecs.moveSpeed * (float)dt, 0.0f}, {0.0f, 0.0f, 0.0f}, 0.0f);
+  if (IsKeyDown(KEY_A))
+    UpdateCameraPro(&m_camera, {0.0f, r * m_cameraSpecs.moveSpeed * (float)dt, 0.0f}, {0.0f, 0.0f, 0.0f}, 0.0f);
 }
 
 void SceneLayer::m_handleCamera(double dt)
