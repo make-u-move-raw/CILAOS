@@ -3,6 +3,7 @@
 #include <vector>
 #include "core/PerlinGenerator.hpp"
 #include "external/raylib/raylib.h"
+#include "external/raylib/raymath.h"
 #include "external/raylib/rlgl.h"
 
 const float TERRAIN_COORDINATE_SIZE = 10.0f; // The size in world coordinates to display the terrain
@@ -159,5 +160,9 @@ namespace Core
      * @brief Change the render mode to wireFrame or normal
      */
     void switchRenderMode() { m_wireFrame = !m_wireFrame; }
+
+    void calculateNormals();
+
+    Model getModel() { return m_model; }
   };
 }

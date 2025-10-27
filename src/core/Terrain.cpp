@@ -34,13 +34,19 @@ namespace Core
 
           break;
         }
+
+        // Wave animation
         m_mesh.vertices[3 * vIndex + 1] = std::max(base + A * cosf(omega * m_time + 0.04 * (i + j)), 0.0f);
       }
-    }
 
-    // Re-upload new heights to GPU
-    UpdateMeshBuffer(m_mesh, 0, m_mesh.vertices, m_mesh.vertexCount * 3 * sizeof(float), 0);
-    elapsedTime = 0.0;
+      elapsedTime = 0.0;
+      // Re compute normals
+      // calculateNormals();
+
+      // Re-upload new vertices data to GPU
+      // UpdateMeshBuffer(m_mesh, 0, m_mesh.vertices, m_mesh.vertexCount * 3 * sizeof(float), 0);
+      // UpdateMeshBuffer(m_mesh, 2, m_mesh.normals, m_mesh.vertexCount * 3 * sizeof(float), 0);
+    }
   }
 
   void Terrain::render()
@@ -151,9 +157,12 @@ namespace Core
         setBaseHeight(i, j, newHeight);
       }
     }
+    calculateNormals();
 
-    std::cout << "INFO: Generated new terrain with seed : " << newSeed << std::endl;
+    std::cout
+        << "INFO: Generated new terrain with seed : " << newSeed << std::endl;
     UpdateMeshBuffer(m_mesh, 0, m_mesh.vertices, m_mesh.vertexCount * 3 * sizeof(float), 0);
+    UpdateMeshBuffer(m_mesh, 2, m_mesh.normals, m_mesh.vertexCount * 3 * sizeof(float), 0);
     UpdateMeshBuffer(m_mesh, 3, m_mesh.colors, m_mesh.vertexCount * 4 * sizeof(unsigned char), 0);
   }
 
@@ -215,5 +224,53 @@ namespace Core
       heightColor = SNOW_COLOR;
 
     return heightColor;
+  }
+
+  void Terrain::calculateNormals()
+  {
+    // Reset all normals to zero
+    for (int i = 0; i < m_mesh.vertexCount * 3; i++)
+    {
+      m_mesh.normals[i] = 0.0f;
+    }
+
+    // Calculate face normals and accumulate to vertex normals
+    for (int i = 0; i < m_mesh.triangleCount; i++)
+    {
+      int idx0 = m_mesh.indices[i * 3 + 0];
+      int idx1 = m_mesh.indices[i * 3 + 1];
+      int idx2 = m_mesh.indices[i * 3 + 2];
+
+      Vector3 v0 = {m_mesh.vertices[idx0 * 3 + 0], m_mesh.vertices[idx0 * 3 + 1], m_mesh.vertices[idx0 * 3 + 2]};
+      Vector3 v1 = {m_mesh.vertices[idx1 * 3 + 0], m_mesh.vertices[idx1 * 3 + 1], m_mesh.vertices[idx1 * 3 + 2]};
+      Vector3 v2 = {m_mesh.vertices[idx2 * 3 + 0], m_mesh.vertices[idx2 * 3 + 1], m_mesh.vertices[idx2 * 3 + 2]};
+
+      Vector3 edge1 = Vector3Subtract(v1, v0);
+      Vector3 edge2 = Vector3Subtract(v2, v0);
+      Vector3 normal = Vector3CrossProduct(edge1, edge2);
+
+      // Accumulate normal to all three vertices
+      m_mesh.normals[idx0 * 3 + 0] += normal.x;
+      m_mesh.normals[idx0 * 3 + 1] += normal.y;
+      m_mesh.normals[idx0 * 3 + 2] += normal.z;
+
+      m_mesh.normals[idx1 * 3 + 0] += normal.x;
+      m_mesh.normals[idx1 * 3 + 1] += normal.y;
+      m_mesh.normals[idx1 * 3 + 2] += normal.z;
+
+      m_mesh.normals[idx2 * 3 + 0] += normal.x;
+      m_mesh.normals[idx2 * 3 + 1] += normal.y;
+      m_mesh.normals[idx2 * 3 + 2] += normal.z;
+    }
+
+    // Normalize all vertex normals
+    for (int i = 0; i < m_mesh.vertexCount; i++)
+    {
+      Vector3 normal = {m_mesh.normals[i * 3 + 0], m_mesh.normals[i * 3 + 1], m_mesh.normals[i * 3 + 2]};
+      normal = Vector3Normalize(normal);
+      m_mesh.normals[i * 3 + 0] = normal.x;
+      m_mesh.normals[i * 3 + 1] = normal.y;
+      m_mesh.normals[i * 3 + 2] = normal.z;
+    }
   }
 }
