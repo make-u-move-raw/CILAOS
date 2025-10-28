@@ -18,7 +18,7 @@ namespace Core
     float omega = 10.0f;
     float A = 0.7f;
 
-    if (!generated)
+    if (!m_generated)
       return;
 
     for (int i = 0; i <= m_size; i++)
@@ -58,7 +58,7 @@ namespace Core
     m_colors.resize(mesh.vertexCount);
 
     // free previously allocated memory
-    if (generated)
+    if (m_generated)
       unload();
 
     mesh.vertices = (float *)MemAlloc(mesh.vertexCount * 3 * sizeof(float));                    // 3 coordinates for each vertex (x, y, z)
@@ -137,7 +137,7 @@ namespace Core
   {
     std::cout << "INFO: Regenerating terrain" << std::endl;
     m_perlinGenerator.generateNewSeed(newSeed);
-    if (!generated)
+    if (!m_generated)
     {
       generateCustomTerrain();
       return;
@@ -187,7 +187,7 @@ namespace Core
   {
     UploadMesh(&m_mesh, false);
     m_model = LoadModelFromMesh(m_mesh);
-    generated = true;
+    m_generated = true;
   }
 
   void Terrain::setColor(int i, int j, Color newCol)

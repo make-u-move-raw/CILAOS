@@ -38,13 +38,27 @@ namespace Core
     int m_size = DEFAULT_TERRAIN_SIZE;                                            // The number of sub squares of the terrain (precision)
     std::vector<float> m_baseHeights;                                             // The list of heights for each current vertex
     std::vector<Color> m_colors;                                                  // The list of colors for each current vertex
+    bool m_generated = false;                                                     // If the terrain has been generated atleast once
 
+    /**
+     * @brief Generate a color based on height and normal parameter of a given vertex
+     * @param height The height of the vertex
+     * @param normal The normal vector associated with the vertex
+     * @return The color associated to the vertex
+     */
     Color m_generateHeightColor(float height, const Vector3 &normal);
+
+    /**
+     * @brief Compute the normal of a vertex given its neighbors
+     *
+     * Note : All the vertices heights must be known before generating normals
+     * @param i The number of the row in the vertices grid
+     * @param j The number of the column in the vertices grid
+     * @return The normal vector of the vertex
+     */
     Vector3 m_computeNormalAt(int i, int j);
 
   public:
-    bool generated = false;
-
     Terrain() { setSize(DEFAULT_TERRAIN_SIZE); }
     Terrain(int size) { setSize(size); }
 
