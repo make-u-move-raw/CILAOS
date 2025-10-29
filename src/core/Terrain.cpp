@@ -7,36 +7,7 @@ namespace Core
 {
   void Terrain::update(double dt)
   {
-    static double elapsedTime = 0.0;
-    if (elapsedTime < FIXED_TIMESTEP)
-    {
-      elapsedTime += dt;
-      return;
-    }
-
-    m_time += dt;
-    float omega = 10.0f;
-    float A = 0.7f;
-
-    if (!m_generated)
-      return;
-
-    for (int i = 0; i <= m_size; i++)
-    {
-      for (int j = 0; j <= m_size; j++)
-      {
-        float base = getBaseHeight(i, j);
-        int vIndex = i * (m_size + 1) + j;
-        if (vIndex >= m_baseHeights.size())
-        {
-          std::cout << "ERROR: Trying to access unexisting baseHeights at index : " << vIndex
-                    << ", vector is size of " << m_baseHeights.size() << std::endl;
-
-          break;
-        }
-      }
-    }
-    elapsedTime = 0.0;
+    // Nothing to update for now
   }
 
   void Terrain::render()

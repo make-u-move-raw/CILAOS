@@ -55,10 +55,7 @@ namespace Core
     template <typename TLayer>
     void pushLayer() { m_layers.push_back(std::make_unique<TLayer>()); }
 
-    void setZoom() {}
-
     static Application &getInstance();
     AppSpecification &getSpecs();
-    static double getTime();
   };
 }

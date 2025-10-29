@@ -52,6 +52,12 @@ public:
   virtual void update(double dt) override;
 
   /**
+   * @brief Called each time specific physics need to be applied
+   * @param dt The timestep between two rendered frames
+   */
+  virtual void fixedUpdate(double dt) override;
+
+  /**
    * @brief Called each time we need to render something
    */
   virtual void render() override;
@@ -95,5 +101,8 @@ private:
    */
   void m_handleCamera(double dt);
 
-  void m_updateLightShader(double dt);
+  /**
+   * @brief Update the shaders of the scene
+   */
+  void m_updateLightShader();
 };

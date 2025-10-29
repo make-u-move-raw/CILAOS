@@ -76,6 +76,4 @@ namespace Core
     assert(s_Application);
     return *s_Application;
   }
-
-  double Application::getTime() { return (double)GetTime(); }
 }
