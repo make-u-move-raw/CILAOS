@@ -4,6 +4,7 @@
 #include "external/raylib/raylib.h"
 #include "external/raylib/raymath.h"
 #include "external/raylib/rlgl.h"
+#include "external/raylib/rlights.h"
 #include "core/Layer.hpp"
 #include "core/Terrain.hpp"
 
@@ -67,7 +68,11 @@ public:
   virtual void stop();
 
 private:
-  bool m_rotating = false;                                   // Flag for camera auto rotation around the model
+  bool m_rotating = false; // Flag for camera auto rotation around the model
+
+  Vector3 m_sunPos = {-15.0f, 30.0f, -15.0f};
+  Color m_sunColor = {255, 255, 255, 255};
+  float m_sunIntensity = 1.0f;
   Core::Terrain m_terrain;                                   // Terrain object for the scene
   Camera3D m_camera;                                         // Camera object
   CameraSpecification m_cameraSpecs = CameraSpecification(); // Specifications for the camera (settings)
@@ -89,4 +94,6 @@ private:
    * @param dt The timestep between two frates
    */
   void m_handleCamera(double dt);
+
+  void m_updateLightShader(double dt);
 };

@@ -43,8 +43,7 @@ namespace Core
       }
 
       double currentTime = GetTime();
-      double timestep = lastTime - currentTime;
-      lastTime = currentTime;
+      double timestep = currentTime - lastTime;
 
       m_window->update();
       for (const std::unique_ptr<Layer> &layer : m_layers)
@@ -57,6 +56,7 @@ namespace Core
 
       DrawFPS(0, 0);
       EndDrawing();
+      lastTime = currentTime;
     }
   }
 
