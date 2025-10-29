@@ -21,22 +21,13 @@ SceneLayer::~SceneLayer() {}
 
 void SceneLayer::update(double dt)
 {
-  fixedUpdate(dt);
   m_handleInputs(dt);
   m_handleCamera(dt);
 }
 
 void SceneLayer::fixedUpdate(double dt)
 {
-  if (getElapsedTime() < FIXED_TIMESTEP)
-  {
-    updateTime(dt);
-    return;
-  }
-
   m_terrain.update(dt);
-  std::cout << "Fixed update after " << getElapsedTime() << "s" << std::endl;
-  resetElapsedTime();
 }
 
 void SceneLayer::render()

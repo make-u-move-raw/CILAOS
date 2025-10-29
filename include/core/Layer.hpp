@@ -11,29 +11,9 @@ namespace Core
    */
   class Layer
   {
-  private:
-    inline static double m_elapsedTime = 0.0; // The elapsed time between two fixed update calls
-
-  protected:
-    const double FIXED_TIMESTEP = 0.02; // The timestep for a fixed update call (in seconds here every 20ms)
-
-    /**
-     * @brief Get the currently elapsed time between two fixed update
-     * @return Elapsed time between two fixed upates
-     */
-    static int getElapsedTime() { return m_elapsedTime; }
-    /**
-     * @brief Restart counter
-     */
-    static void resetElapsedTime() { m_elapsedTime = 0.0; }
-
-    /**
-     * @brief Update the elapsed time between two fixed update
-     * @param dt The timestep (time elapsed) between two frames
-     */
-    static void updateTime(double dt) { m_elapsedTime += dt; }
-
   public:
+    inline static const double FIXED_TIMESTEP = 1 / 60.0; // The timestep for a fixed update call (in seconds here every 16ms)
+
     virtual ~Layer() = default;
     /**
      * @brief Called each time data needs to be updated
@@ -62,10 +42,5 @@ namespace Core
      * @param event The event that is triggered
      */
     virtual void onEvent(Event &event) = 0;
-
-    /**
-     * @brief Initialize static attribute for elapsed time in the layers
-     */
-    static void initTime() { m_elapsedTime = 0.0; }
   };
 }

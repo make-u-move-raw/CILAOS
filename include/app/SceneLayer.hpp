@@ -55,7 +55,7 @@ public:
    * @brief Called each time specific physics need to be applied
    * @param dt The timestep between two rendered frames
    */
-  virtual void fixedUpdate(double dt) override;
+  virtual void fixedUpdate(double dt);
 
   /**
    * @brief Called each time we need to render something
@@ -76,9 +76,9 @@ public:
 private:
   bool m_rotating = false; // Flag for camera auto rotation around the model
 
-  Vector3 m_sunPos = {-15.0f, 30.0f, -15.0f};
-  Color m_sunColor = {255, 255, 255, 255};
-  float m_sunIntensity = 1.0f;
+  Vector3 m_sunPos = {-15.0f, 30.0f, -15.0f};                // Position of the sun in world coords
+  Color m_sunColor = {255, 255, 255, 255};                   // Color of the sun
+  float m_sunIntensity = 1.0f;                               // Intensity of the sun
   Core::Terrain m_terrain;                                   // Terrain object for the scene
   Camera3D m_camera;                                         // Camera object
   CameraSpecification m_cameraSpecs = CameraSpecification(); // Specifications for the camera (settings)

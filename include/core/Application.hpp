@@ -39,6 +39,7 @@ namespace Core
   {
 
   private:
+    double m_accumulator = 0.0;
     AppSpecification m_specs;
     bool m_isRunning = false;
     std::shared_ptr<Window> m_window;
