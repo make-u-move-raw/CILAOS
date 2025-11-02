@@ -46,6 +46,14 @@ namespace Core
       double timestep = currentTime - lastTime;
 
       m_window->update();
+      m_accumulator += timestep;
+
+      if (m_accumulator >= Layer::FIXED_TIMESTEP)
+      {
+        for (const std::unique_ptr<Layer> &layer : m_layers)
+          layer->fixedUpdate(Layer::FIXED_TIMESTEP);
+        m_accumulator -= Layer::FIXED_TIMESTEP;
+      }
       for (const std::unique_ptr<Layer> &layer : m_layers)
         layer->update(timestep);
 
@@ -76,6 +84,4 @@ namespace Core
     assert(s_Application);
     return *s_Application;
   }
-
-  double Application::getTime() { return (double)GetTime(); }
 }

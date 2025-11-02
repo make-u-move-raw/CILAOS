@@ -10,8 +10,6 @@ const float TERRAIN_COORDINATE_SIZE = 10.0f; // The size in world coordinates to
 const int DEFAULT_TERRAIN_SIZE = 100;        // The default terrain size
 const int MAX_TERRAIN_SIZE = 254;            // The maximum terrain size (number of vertices limited to 65 535)
 
-const double FIXED_TIMESTEP = 0.02; // The timestep for fixed updates (in seconds)
-
 const Color WATER_COLOR = {117, 223, 255, 255}; // Vertex color for water
 const Color SAND_COLOR = {255, 220, 135, 255};  // Vertex color for sand
 const Color FOREST_COLOR = {47, 164, 39, 255};  // Vertex color for forest

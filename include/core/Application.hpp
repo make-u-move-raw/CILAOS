@@ -39,6 +39,7 @@ namespace Core
   {
 
   private:
+    double m_accumulator = 0.0;
     AppSpecification m_specs;
     bool m_isRunning = false;
     std::shared_ptr<Window> m_window;
@@ -55,10 +56,7 @@ namespace Core
     template <typename TLayer>
     void pushLayer() { m_layers.push_back(std::make_unique<TLayer>()); }
 
-    void setZoom() {}
-
     static Application &getInstance();
     AppSpecification &getSpecs();
-    static double getTime();
   };
 }
