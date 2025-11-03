@@ -42,8 +42,16 @@ void Application::run()
     }
 
     double currentTime = GetTime();
-    double timestep = lastTime - currentTime;
-    lastTime = currentTime;
+    double timestep = currentTime - lastTime;
+
+    m_accumulator += timestep;
+
+    if (m_accumulator >= Layer::FIXED_TIMESTEP)
+    {
+      for (const std::unique_ptr<Layer> &layer : m_layers)
+        layer->fixedUpdate(Layer::FIXED_TIMESTEP);
+      m_accumulator -= Layer::FIXED_TIMESTEP;
+    }
 
     m_window->update();
     for (const std::unique_ptr<Layer> &layer : m_layers)
@@ -56,6 +64,8 @@ void Application::run()
 
     DrawFPS(0, 0);
     EndDrawing();
+
+    lastTime = currentTime;
   }
 }
 

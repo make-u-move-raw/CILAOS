@@ -4,8 +4,6 @@
 #include <vector>
 #include <math.h>
 
-
-
 #include "external/raylib/raylib.h"
 #include "external/raylib/raygui.h"
 
@@ -17,7 +15,7 @@
  * @struct Slider
  * @brief Struct to track easely all the sliders
  */
-struct slider
+struct Slider
 {
     std::string name;
     bool Editmode = false;
@@ -39,8 +37,23 @@ public:
 
     virtual void update(double dt) override;
     virtual void render() override;
+
+    /**
+     * @brief Handles GUI-related events and updates the terrain parameters accordingly.
+     * @param event Reference to the event to be processed.
+     */
     virtual void onEvent(Core::Event &event) override;
+
+    /**
+     * @brief Destruction of OpenGL elements (VAO & VBO) and window
+     */
     virtual void stop() override;
+
+    /**
+     * @brief Called each time specific physics need to be applied
+     * @param dt The timestep between two rendered frames
+     */
+    virtual void fixedUpdate(double dt) override;
 
     /**
      * @brief Called once initialized to link the app context (shared data) between all different layers
@@ -50,9 +63,10 @@ public:
 
     /**
      * @brief apply all the changes of the sliders then dispach to the scene layer
+     * @param name The name of the change to apply
+     * @param value The value of the current change
      */
     void applySliderChanges(std::string name, float value);
-    void renderGui();
 
     /**
      * @brief this alow to toggle on and off the GUI
@@ -65,11 +79,19 @@ public:
      */
     bool getShowGUI() const { return m_showGUI; }
     char seed[24] = "SEED";
-    std::vector<slider> sliders;
+    std::vector<Slider> sliders;
 
 private:
-    std::shared_ptr<Core::Terrain> m_terrain; // Shared terrain from the app context
+    std::shared_ptr<Core::Terrain> m_terrain;                      // Shared terrain from the app context
+    std::unordered_map<std::string, float> m_pendingSliderChanges; // Unordered map for storing changed values between two updates of GUI
+    bool m_hasPendingChanges = false;                              // Flag indicating if slider values changed
     bool m_textBoxEditMode;
 
     bool m_showGUI;
+
+    /**
+     * @brief This function renders all the sliders and the GUI elements it includes the backpanel, sliders, buttons, text input
+     * Note : The updates occur separately from the rendering
+     */
+    void renderGUI();
 };

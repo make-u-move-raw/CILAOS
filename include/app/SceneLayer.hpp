@@ -54,6 +54,12 @@ public:
   virtual void update(double dt) override;
 
   /**
+   * @brief Called each time specific physics need to be applied
+   * @param dt The timestep between two rendered frames
+   */
+  virtual void fixedUpdate(double dt);
+
+  /**
    * @brief Called each time we need to render something
    */
   virtual void render() override;
@@ -71,7 +77,7 @@ public:
   virtual void setContext(std::shared_ptr<Context> context) override
   {
     m_terrain = context->terrain;
-    
+
     if (m_terrain)
     {
       Vector3 target = m_terrain->getPos();
@@ -82,7 +88,7 @@ public:
     }
     else
     {
-      std::cerr << "Error: terrain not found in setcontext!" << std::endl;
+      std::cerr << "ERROR: Terrain not found in context!" << std::endl;
     }
   }
 
@@ -97,8 +103,8 @@ private:
   Vector3 m_sunPos = {-15.0f, 30.0f, -15.0f};
   Color m_sunColor = {255, 255, 255, 255};
   float m_sunIntensity = 1.0f;
-  std::shared_ptr<Core::Terrain> m_terrain;                  // Shared terrain from the app context
-  Camera3D m_camera;                                         // Camera object
+  std::shared_ptr<Core::Terrain> m_terrain = 0;              // Shared terrain from the app context
+  Camera3D m_camera = {0};                                   // Camera object
   CameraSpecification m_cameraSpecs = CameraSpecification(); // Specifications for the camera (settings)
 
   /**
@@ -119,5 +125,8 @@ private:
    */
   void m_handleCamera(double dt);
 
-  void m_updateLightShader(double dt);
+  /**
+   * @brief Update the shaders of the scene
+   */
+  void m_updateLightShader();
 };

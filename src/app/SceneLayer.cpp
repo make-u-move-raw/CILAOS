@@ -8,7 +8,6 @@
 #include "app/Application.hpp"
 #include "app/SceneLayer.hpp"
 
-
 SceneLayer::SceneLayer()
 {
   m_camera = {{10.0f, 10.0f, 10.0f}, {0.0f, 0.0f, 0.0f}, m_cameraSpecs.upVector, m_cameraSpecs.fov, 0};
@@ -17,23 +16,23 @@ SceneLayer::~SceneLayer() {}
 
 void SceneLayer::update(double dt)
 {
-   if (!m_terrain) {
-        std::cout << "update : no m_terrain found" << std::endl;
-        return;
+  if (!m_terrain)
+  {
+    std::cout << "update : no m_terrain found" << std::endl;
+    return;
   }
-  m_updateLightShader(dt);
   m_handleInputs(dt);
   m_handleCamera(dt);
+}
 
+void SceneLayer::fixedUpdate(double dt)
+{
   m_terrain->update(dt);
 }
 
 void SceneLayer::render()
 {
-  if (!m_terrain) {
-        std::cout << "render : no m_terrain found" << std::endl;
-        return;
-  }
+  m_updateLightShader();
   BeginMode3D(m_camera);
   m_terrain->render();
   DrawSphereWires(m_sunPos, 0.5f, 8, 8, m_sunColor);
@@ -136,7 +135,7 @@ void SceneLayer::m_handleCamera(double dt)
   if (m_camera.position.y > m_cameraSpecs.maxY)
     m_camera.position.y = m_cameraSpecs.maxY;
 
-  
+  m_camera.target = m_terrain->getPos();
 }
 
 void SceneLayer::onEvent(Core::Event &event)
@@ -149,37 +148,8 @@ void SceneLayer::onEvent(Core::Event &event)
   }
 }
 
-
-// void SceneLayer::m_updateLightShader(double dt)
-// {
-//   static double elapsedTime = 0.0;
-//   if (elapsedTime < FIXED_TIMESTEP)
-//   {
-//     elapsedTime += dt;
-//     return;
-//   }
-//   Shader terrainShader = m_terrain->getShader();
-
-//   SetShaderValue(terrainShader, GetShaderLocation(terrainShader, "lightPosition"), &m_sunPos, SHADER_UNIFORM_VEC3);
-
-//   Vector3 lightColorNormalized = {
-//       m_sunColor.r / 255.0f * m_sunIntensity,
-//       m_sunColor.g / 255.0f * m_sunIntensity,
-//       m_sunColor.b / 255.0f * m_sunIntensity};
-//   SetShaderValue(terrainShader, GetShaderLocation(terrainShader, "lightColor"), &lightColorNormalized, SHADER_UNIFORM_VEC3);
-
-//   SetShaderValue(terrainShader, GetShaderLocation(terrainShader, "viewPos"), &m_camera.position, SHADER_UNIFORM_VEC3);
-//   elapsedTime = 0.0f;
-// }
-
-void SceneLayer::m_updateLightShader(double dt)
+void SceneLayer::m_updateLightShader()
 {
-  static double elapsedTime = 0.0;
-  if (elapsedTime < FIXED_TIMESTEP)
-  {
-    elapsedTime += dt;
-    return;
-  }
   Shader terrainShader = m_terrain->getShader();
 
   SetShaderValue(terrainShader, GetShaderLocation(terrainShader, "lightPosition"), &m_sunPos, SHADER_UNIFORM_VEC3);
@@ -191,5 +161,4 @@ void SceneLayer::m_updateLightShader(double dt)
   SetShaderValue(terrainShader, GetShaderLocation(terrainShader, "lightColor"), &lightColorNormalized, SHADER_UNIFORM_VEC3);
 
   SetShaderValue(terrainShader, GetShaderLocation(terrainShader, "viewPos"), &m_camera.position, SHADER_UNIFORM_VEC3);
-  elapsedTime = 0.0f;
 }

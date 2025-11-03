@@ -32,6 +32,7 @@ class Application
 
 private:
   AppSpecification m_specs;               // Specifications for the app
+  double m_accumulator = 0.0;             // Accumulator for fixed update
   bool m_isRunning = false;               // Main loop running flag
   std::shared_ptr<Core::Window> m_window; // The window object shared across all layers (if needed)
   std::unique_ptr<Core::EventDispatcher> m_eventDispatcher;
