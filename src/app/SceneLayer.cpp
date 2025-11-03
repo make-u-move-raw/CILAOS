@@ -1,6 +1,4 @@
 #define RLIGHTS_IMPLEMENTATION
-#include "app/SceneLayer.hpp"
-
 #include <algorithm>
 #include <chrono>
 #include <iostream>
@@ -18,7 +16,7 @@ void SceneLayer::update(double dt)
 {
   if (!m_terrain)
   {
-    std::cout << "update : no m_terrain found" << std::endl;
+    std::cout << "ERROR : Terrain is not initialized" << std::endl;
     return;
   }
   m_handleInputs(dt);
@@ -144,7 +142,7 @@ void SceneLayer::onEvent(Core::Event &event)
   if (event.type == Core::EventType::REGENERATE)
   {
     m_terrain->regenerateTerrain();
-    std::cout << "from " << event.senderName << "to " << event.target << std::endl;
+    std::cout << "EVENT : From " << event.target << " to " << event.senderName << std::endl;
   }
 }
 
