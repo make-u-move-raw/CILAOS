@@ -28,9 +28,8 @@ namespace Core
   class Terrain
   {
   private:
-  // Shader m_shader = LoadShader(TextFormat("src/core/shaders/terrain.vs", 330),
-  //                                TextFormat("src/core/shaders/terrain.fs", 330)); // Shader for interacting with positions/textures/normals/colors of the terrain mesh
-    Shader m_shader = {0};
+    Shader m_shader = LoadShader(TextFormat("src/core/shaders/terrain.vs", 330),
+                                 TextFormat("src/core/shaders/terrain.fs", 330)); // Shader for interacting with positions/textures/normals/colors of the terrain mesh
     bool m_shaderLoaded = false;
     PerlinGenerator m_perlinGenerator;  // Perlin generator object associated with the terrain  // Perlin generator (data for the terrain)
     bool m_wireFrame = false;           // Wireframe display flag
@@ -63,24 +62,8 @@ namespace Core
     unsigned int m_seed;
 
   public:
-    Terrain() : m_pos{0.0f, 0.0f, 0.0f},
-                m_size(DEFAULT_TERRAIN_SIZE),
-                m_wireFrame(false),
-                m_time(0.0),
-                m_generated(false)
-                //m_shader(LoadShader(TextFormat("src/core/shaders/terrain.vs", 330), TextFormat("src/core/shaders/terrain.fs", 330)))
-
-    {
-    }
-    Terrain(int size) : m_pos{0.0f, 0.0f, 0.0f},
-                        m_size(size),
-                        m_wireFrame(false),
-                        m_time(0.0),
-                        m_generated(false)
-                       //m_shader(LoadShader(TextFormat("src/core/shaders/terrain.vs", 330), TextFormat("src/core/shaders/terrain.fs", 330)))
-    {
-      // setSize(size);
-    }
+    Terrain() { setSize(DEFAULT_TERRAIN_SIZE); }
+    Terrain(int size) { setSize(size); }
 
     /**
      * @brief Main call function for generating terrain when a new precision is set

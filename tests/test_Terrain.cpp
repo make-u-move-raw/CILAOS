@@ -42,6 +42,7 @@ TEST_CASE("Generating mesh terrain of size 500 and access vertices data", "[Core
   int nbSquares = terrain.getFullSize();
   int nbVert = terrain.getNbVertices();
   int nbTris = terrain.getNbTriangles();
+  std::cout << nbSquares << "RAAAAAWR" << std::endl;
 
   REQUIRE(nbSquares == MAX_TERRAIN_SIZE * MAX_TERRAIN_SIZE);
   REQUIRE(nbTris == 2 * MAX_TERRAIN_SIZE * MAX_TERRAIN_SIZE);
