@@ -142,7 +142,7 @@ void SceneLayer::onEvent(Core::Event &event)
   if (event.type == Core::EventType::REGENERATE)
   {
     m_terrain->regenerateTerrain();
-    std::cout << "EVENT : From " << event.target << " to " << event.senderName << std::endl;
+    std::cout << "EVENT : From " <<  event.senderName << " to " <<event.target<< std::endl;
   }
 }
 

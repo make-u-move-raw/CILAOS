@@ -59,7 +59,7 @@ void GUILayer::applySliderChanges(std::string name, float value)
 
     // call the event to regenerate the terrain
     Core::EventType eventType = Core::EventType::REGENERATE;
-    Core::Event event(eventType, "SceneLayer", "GuiLayer");
+    Core::Event event(eventType, "GuiLayer", "SceneLayer");
     app.dispatchEvents(event);
 }
 
