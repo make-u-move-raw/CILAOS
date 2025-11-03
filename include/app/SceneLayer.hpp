@@ -6,6 +6,7 @@
 
 #include "app/Context.hpp"
 #include "core/Event.hpp"
+#include "external/raylib/rlights.h"
 #include "core/Layer.hpp"
 #include "core/Terrain.hpp"
 
@@ -67,7 +68,23 @@ public:
    * @brief Called once initialized to link the app context (shared data) between all different layers
    * @param context The context of the app
    */
-  virtual void setContext(std::shared_ptr<Context> context) override { m_terrain = context->terrain; }
+  virtual void setContext(std::shared_ptr<Context> context) override
+  {
+    m_terrain = context->terrain;
+    
+    if (m_terrain)
+    {
+      Vector3 target = m_terrain->getPos();
+      m_camera.target = target;
+      m_terrain->setSize(100);
+      m_terrain->generateCustomTerrain();
+      m_terrain->load();
+    }
+    else
+    {
+      std::cerr << "Error: terrain not found in setcontext!" << std::endl;
+    }
+  }
 
   /**
    * @brief Destruction of OpenGL elements (VAO & VBO) and window
@@ -75,7 +92,11 @@ public:
   virtual void stop() override;
 
 private:
-  bool m_rotating = false;                                   // Flag for camera auto rotation around the model
+  bool m_rotating = false; // Flag for camera auto rotation around the model
+
+  Vector3 m_sunPos = {-15.0f, 30.0f, -15.0f};
+  Color m_sunColor = {255, 255, 255, 255};
+  float m_sunIntensity = 1.0f;
   std::shared_ptr<Core::Terrain> m_terrain;                  // Shared terrain from the app context
   Camera3D m_camera;                                         // Camera object
   CameraSpecification m_cameraSpecs = CameraSpecification(); // Specifications for the camera (settings)
@@ -97,4 +118,6 @@ private:
    * @param dt The timestep between two frates
    */
   void m_handleCamera(double dt);
+
+  void m_updateLightShader(double dt);
 };

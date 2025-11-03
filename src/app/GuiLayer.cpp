@@ -6,11 +6,12 @@ GUILayer::GUILayer()
 {
     // sliders for noise scale, persistence, lacunarity, octaves
     sliders = {
-        {"Noise Scale", false, 1.0f, 0.0f, 10.0f},
-        {"Persistence", false, 1.0f, 0.0f, 10.0f},
-        {"Lacunarity", false, 1.0f, 0.0f, 10.0f},
-        {"Frequency", false, 1.0f, 0.0f, 100.0f},
-        {"Octaves", false, 1.0f, 0.0f, 10.0f, true}};
+        {"Noise Scale", false, 0.0001f, 0.002f, 0.01f},
+        {"Persistence", false, 0.5f, 0.2f, 0.8f},
+        {"Lacunarity", false, 2.0f, 1.5f, 3.0f},
+        {"Frequency", false, 1.0f, 0.1f, 10.0f},
+        {"Octaves", false, 5.0f, 1.0f, 8.0f, true}
+    };
     m_showGUI = true;
     m_textBoxEditMode = false;
 }
@@ -52,33 +53,34 @@ void GUILayer::applySliderChanges(std::string name, float value)
     }
     else if (name == "Seed")
     {
-        std::cout << "seed value " <<value<< std::endl;
+        std::cout << "seed value " << value << std::endl;
         std::cout << "Regenerating terrain with seed " << static_cast<unsigned int>(value) << std::endl;
         m_terrain->setSeed(static_cast<unsigned int>(value));
     }
 
     // call the event to regenerate the terrain
     Core::EventType eventType = Core::EventType::REGENERATE;
-    Core::Event event(eventType,"SceneLayer","GuiLayer"); 
+    Core::Event event(eventType, "SceneLayer", "GuiLayer");
     app.dispatchEvents(event);
 }
 
-float getSeedFromString(const char* seedStr)
+float getSeedFromString(const char *seedStr)
 {
     std::string str(seedStr);
 
     // Try to convert the seed to the value
     float value = std::atof(seedStr);
     // if it's a word atof returns 0.0
-    if (value != 0.0f) {
+    if (value != 0.0f)
+    {
         return value;
     }
-    
 
     float asciiSeed = 0.0f;
     int multiplier = 1;
     // we take the word then convert it to ascii to have a float
-    for (char c : str) {
+    for (char c : str)
+    {
         asciiSeed += static_cast<int>(c) * multiplier;
         multiplier *= 256;
     }
@@ -117,7 +119,7 @@ void GUILayer::renderGui()
         else
         {
             // if it's a float
-            DrawText(TextFormat("%.2f", slider.value), x + width + 5, y + 5, 12, BLACK);
+            DrawText(TextFormat("%.3f", slider.value), x + width + 5, y + 5, 12, BLACK);
         }
         // padding between each slider
         y += 40;

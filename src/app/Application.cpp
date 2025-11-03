@@ -59,6 +59,9 @@ void Application::run()
   }
 }
 
+/**
+ * @brief Stop the application and destroy the window
+ */
 void Application::stop()
 {
   for (const std::unique_ptr<Layer> &layer : m_layers)
