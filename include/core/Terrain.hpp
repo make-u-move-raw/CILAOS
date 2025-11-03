@@ -69,11 +69,11 @@ namespace Core
     {
     }
     Terrain(int size) : m_pos{0.0f, 0.0f, 0.0f},
-                        m_size(size),
                         m_wireFrame(false),
                         m_time(0.0),
                         m_generated(false)
     {
+      setSize(size);
     }
 
     /**
