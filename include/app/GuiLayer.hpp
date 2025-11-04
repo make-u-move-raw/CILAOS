@@ -12,12 +12,26 @@
 #include "core/Layer.hpp"
 
 /**
+ * @struct Slidertype
+ * @brief Struct to track the name of the sliders
+ */
+enum class SliderType {
+    NoiseScale,
+    Persistence,
+    Lacunarity,
+    Frequency,
+    Octaves,
+    Seed
+};
+
+/**
  * @struct Slider
  * @brief Struct to track easely all the sliders
  */
 struct Slider
 {
     std::string name;
+    SliderType type;
     bool Editmode = false;
     float value;
     float minValue;
@@ -66,7 +80,7 @@ public:
      * @param name The name of the change to apply
      * @param value The value of the current change
      */
-    void applySliderChanges(std::string name, float value);
+    void applySliderChanges(SliderType type, float value);
 
     /**
      * @brief this alow to toggle on and off the GUI
@@ -83,7 +97,7 @@ public:
 
 private:
     std::shared_ptr<Core::Terrain> m_terrain;                      // Shared terrain from the app context
-    std::unordered_map<std::string, float> m_pendingSliderChanges; // Unordered map for storing changed values between two updates of GUI
+    std::unordered_map<SliderType, float> m_pendingSliderChanges; // Unordered map for storing changed values between two updates of GUI
     bool m_hasPendingChanges = false;                              // Flag indicating if slider values changed
     bool m_textBoxEditMode;
 

@@ -6,16 +6,16 @@ GUILayer::GUILayer()
 {
     // sliders for noise scale, persistence, lacunarity, octaves
     sliders = {
-        {"Noise Scale", false, 0.0001f, 0.002f, 0.01f},
-        {"Persistence", false, 0.5f, 0.2f, 0.8f},
-        {"Lacunarity", false, 2.0f, 1.5f, 3.0f},
-        {"Frequency", false, 1.0f, 0.1f, 10.0f},
-        {"Octaves", false, 5.0f, 1.0f, 8.0f, true}};
+        {"Noise Scale", SliderType::NoiseScale, false, 0.0001f, 0.002f, 0.01f, false},
+        {"Persistence", SliderType::Persistence, false, 0.5f, 0.2f, 0.8f, false},
+        {"Lacunarity", SliderType::Lacunarity, false, 2.0f, 1.5f, 3.0f, false},
+        {"Frequency", SliderType::Frequency, false, 1.0f, 0.1f, 10.0f, false},
+        {"Octaves", SliderType::Octaves, false, 5.0f, 1.0f, 8.0f, true}};
     m_showGUI = true;
     m_textBoxEditMode = false;
 }
 
-void GUILayer::applySliderChanges(std::string name, float value)
+void GUILayer::applySliderChanges(SliderType type, float value)
 {
     auto &app = Application::getInstance();
 
@@ -24,42 +24,41 @@ void GUILayer::applySliderChanges(std::string name, float value)
         std::cerr << "Error: m_terrain is null in GUILayer::applySliderChanges" << std::endl;
         return;
     }
-
-    if (name == "Noise Scale")
+    switch (type)
     {
+    case SliderType::NoiseScale:
         std::cout << "Updating Noise Scale to " << value << std::endl;
         m_terrain->setNoiseAmplitude(value);
-    }
-    else if (name == "Persistence")
-    {
+        break;
+
+    case SliderType::Persistence:
         std::cout << "Updating Persistence to " << value << std::endl;
         m_terrain->setNoisePersistence(value);
-    }
-    else if (name == "Lacunarity")
-    {
+        break;
+
+    case SliderType::Lacunarity:
         std::cout << "Updating Lacunarity to " << value << std::endl;
         m_terrain->setNoiseLacunarity(value);
-    }
-    else if (name == "Frequency")
-    {
+        break;
+
+    case SliderType::Frequency:
         std::cout << "Updating Frequency to " << value << std::endl;
         m_terrain->setNoiseFrequency(value);
-    }
-    else if (name == "Octaves")
-    {
+        break;
+
+    case SliderType::Octaves:
         std::cout << "Updating Octaves to " << value << std::endl;
         m_terrain->setNoiseOctaves(value);
-    }
-    else if (name == "Seed")
-    {
-        std::cout << "seed value " << value << std::endl;
+        break;
+
+    case SliderType::Seed:
         std::cout << "Regenerating terrain with seed " << static_cast<unsigned int>(value) << std::endl;
         m_terrain->setSeed(static_cast<unsigned int>(value));
+        break;
     }
 
-    // call the event to regenerate the terrain
-    Core::EventType eventType = Core::EventType::REGENERATE;
-    Core::Event event(eventType, "GuiLayer", "SceneLayer");
+    // Regénère le terrain
+    Core::Event event(Core::EventType::REGENERATE, "GuiLayer", "SceneLayer");
     app.dispatchEvents(event);
 }
 
@@ -102,7 +101,7 @@ void GUILayer::renderGUI()
     {
         if (GuiSlider(bounds, slider.name.c_str(), NULL, &slider.value, slider.minValue, slider.maxValue))
         {
-            m_pendingSliderChanges[slider.name] = slider.value;
+            m_pendingSliderChanges[slider.type] = slider.value;
             m_hasPendingChanges = true;
         }
         if (slider.isInteger)
@@ -127,7 +126,7 @@ void GUILayer::renderGUI()
 
     // Draw Regenerate button
     if (GuiButton(bounds, "Regenerate"))
-        applySliderChanges("Seed", getSeedFromString(this->seed));
+        applySliderChanges(SliderType::Seed, getSeedFromString(this->seed));
 }
 
 void GUILayer::render()
@@ -143,9 +142,9 @@ void GUILayer::onEvent(Core::Event &event)
 void GUILayer::update(double dt) {}
 void GUILayer::fixedUpdate(double dt)
 {
-    for (const auto &[name, value] : m_pendingSliderChanges)
+    for (const auto &[type, value] : m_pendingSliderChanges)
     {
-        applySliderChanges(name, value);
+        applySliderChanges(type, value);
     }
 
     m_pendingSliderChanges.clear();
