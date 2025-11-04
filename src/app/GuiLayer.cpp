@@ -1,4 +1,3 @@
-
 #include "app/GuiLayer.hpp"
 
 GUILayer::~GUILayer() {}
@@ -129,17 +128,194 @@ void GUILayer::m_renderGUI()
         applySliderChanges(SliderType::Seed, getSeedFromString(this->seed));
 }
 
+void GUILayer::m_renderMainMenu()
+{
+    int screenWidth = GetScreenWidth();
+    int screenHeight = GetScreenHeight();
+    
+    DrawRectangle(0, 0, screenWidth, screenHeight, Fade(BLACK, 0.7f));
+    
+    // Menu panel
+    int menuWidth = 400;
+    int menuHeight = 500;
+    int menuX = (screenWidth - menuWidth) / 2;
+    int menuY = (screenHeight - menuHeight) / 2;
+    
+    DrawRectangle(menuX, menuY, menuWidth, menuHeight, Fade(DARKGRAY, 0.95f));
+    DrawRectangleLines(menuX, menuY, menuWidth, menuHeight, LIGHTGRAY);
+    
+    const char *title = "MENU";
+    int titleWidth = MeasureText(title, 30);
+    DrawText(title, menuX + (menuWidth - titleWidth) / 2, menuY + 30, 30, WHITE);
+    
+    // Boutons
+    int buttonWidth = 300;
+    int buttonHeight = 50;
+    int buttonX = menuX + (menuWidth - buttonWidth) / 2;
+    int buttonY = menuY + 100;
+    int buttonSpacing = 70;
+    
+    Rectangle bounds;
+    
+    // resume
+    bounds = {(float)buttonX, (float)buttonY, (float)buttonWidth, (float)buttonHeight};
+    if (GuiButton(bounds, "Resume"))
+        m_menuState = MenuState::None;
+    
+    // settings
+    buttonY += buttonSpacing;
+    bounds = {(float)buttonX, (float)buttonY, (float)buttonWidth, (float)buttonHeight};
+    if (GuiButton(bounds, "Settings"))
+        m_menuState = MenuState::Settings;
+    
+    // keybinds
+    buttonY += buttonSpacing;
+    bounds = {(float)buttonX, (float)buttonY, (float)buttonWidth, (float)buttonHeight};
+    if (GuiButton(bounds, "Keybinds"))
+        m_menuState = MenuState::KeyBindings;
+    
+    //  exit
+    buttonY += buttonSpacing;
+    bounds = {(float)buttonX, (float)buttonY, (float)buttonWidth, (float)buttonHeight};
+    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(RED));
+    if (GuiButton(bounds, "Exit"))
+    {
+        // closes the window
+        auto &app = Application::getInstance();
+        app.stop();
+    }
+    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(LIGHTGRAY));
+    
+    // Instructions
+    const char *instruction = "Press ESC to close";
+    int instrWidth = MeasureText(instruction, 15);
+    DrawText(instruction, menuX + (menuWidth - instrWidth) / 2, menuY + menuHeight - 40, 15, LIGHTGRAY);
+}
+
+void GUILayer::m_renderSettingsWindow()
+{
+    int screenWidth = GetScreenWidth();
+    int screenHeight = GetScreenHeight();
+    
+    DrawRectangle(0, 0, screenWidth, screenHeight, Fade(BLACK, 0.7f));
+    
+    int windowWidth = 500;
+    int windowHeight = 600;
+    int windowX = (screenWidth - windowWidth) / 2;
+    int windowY = (screenHeight - windowHeight) / 2;
+    
+    DrawRectangle(windowX, windowY, windowWidth, windowHeight, Fade(DARKGRAY, 0.95f));
+    DrawRectangleLines(windowX, windowY, windowWidth, windowHeight, LIGHTGRAY);
+    
+    const char *title = "SETTINGS";
+    int titleWidth = MeasureText(title, 30);
+    DrawText(title, windowX + (windowWidth - titleWidth) / 2, windowY + 20, 30, WHITE);
+    
+    int contentX = windowX + 50;
+    int contentY = windowY + 80;
+    int itemHeight = 50;
+
+    contentY += itemHeight;
+    DrawText("Display gui", contentX, contentY + 10, 20, WHITE);
+    Rectangle DisplayGUI = {(float)(contentX + 200), (float)contentY, 150, 40};
+    GuiCheckBox(DisplayGUI, "ON/OFF", &m_showGUI);
+    
+    contentY = windowY + windowHeight - 80;
+    Rectangle backBounds = {(float)(windowX + 150), (float)contentY, 200, 50};
+    if (GuiButton(backBounds, "<- Back"))
+        m_menuState = MenuState::MainMenu;
+}
+
+void GUILayer::m_renderKeyBindingsWindow()
+{
+    int screenWidth = GetScreenWidth();
+    int screenHeight = GetScreenHeight();
+    
+    DrawRectangle(0, 0, screenWidth, screenHeight, Fade(BLACK, 0.7f));
+    
+    int windowWidth = 500;
+    int windowHeight = 600;
+    int windowX = (screenWidth - windowWidth) / 2;
+    int windowY = (screenHeight - windowHeight) / 2;
+    
+    DrawRectangle(windowX, windowY, windowWidth, windowHeight, Fade(DARKGRAY, 0.95f));
+    DrawRectangleLines(windowX, windowY, windowWidth, windowHeight, LIGHTGRAY);
+    
+    const char *title = "Keybinds";
+    int titleWidth = MeasureText(title, 30);
+    DrawText(title, windowX + (windowWidth - titleWidth) / 2, windowY + 20, 30, WHITE);
+    
+    int contentX = windowX + 50;
+    int contentY = windowY + 80;
+    int lineHeight = 35;
+    
+    // Keybind list 
+    struct KeyBinding {
+        const char *action;
+        const char *key;
+    };
+    
+    KeyBinding bindings[] = {
+        {"Move around", "Z Q S D"},
+        {"Zoom +/-", "Scroll down / up"},
+        {"Size of the terrain", "1,2,3,4,5"},
+        {"Auto rotate", "R"},
+        {"Generate random Terrain", "T"},
+        {"Activate", "Z"},
+        {"Menu", "ESC"},
+        {"Display/hidde GUI", "not working yet"},
+        {"Screenshot", "not working yet"},
+        {"Fullscreen", "not working yet"}
+    };
+    
+    for (const auto &binding : bindings)
+    {
+        DrawText(binding.action, contentX, contentY, 18, WHITE);
+        DrawText(binding.key, contentX + 250, contentY, 18, YELLOW);
+        contentY += lineHeight;
+    }
+    
+
+    contentY = windowY + windowHeight - 80;
+    Rectangle backBounds = {(float)(windowX + 150), (float)contentY, 200, 50};
+    if (GuiButton(backBounds, "<- Back"))
+        m_menuState = MenuState::MainMenu;
+}
+
 void GUILayer::render()
 {
-    if (m_showGUI)
+    if (!IsWindowReady()) return;
+
+    if (m_showGUI && m_menuState == MenuState::None)
         m_renderGUI();
+    
+    switch (m_menuState)
+    {
+    case MenuState::MainMenu:
+        m_renderMainMenu();
+        break;
+    case MenuState::Settings:
+        m_renderSettingsWindow();
+        break;
+    case MenuState::KeyBindings:
+        m_renderKeyBindingsWindow();
+        break;
+    case MenuState::None:
+    default:
+        break;
+    }
 }
 
 void GUILayer::onEvent(Core::Event &event)
 {
 }
 
-void GUILayer::update(double dt) {}
+void GUILayer::update(double dt) {
+
+    if (IsKeyPressed(KEY_ESCAPE)) {
+        setMenuState();
+}
+}
 void GUILayer::fixedUpdate(double dt)
 {
     for (const auto &[type, value] : m_pendingSliderChanges)

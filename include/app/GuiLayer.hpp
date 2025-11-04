@@ -23,6 +23,17 @@ enum class SliderType {
     Octaves,
     Seed
 };
+/**
+ * @struct MenuState
+ * @brief Struct to track the state of the Menu display
+ */
+enum class MenuState
+{
+    None,        // no menu displayed
+    MainMenu,    // Menu displayed
+    Settings,    // settings Window
+    KeyBindings  // Keybinds Window
+};
 
 /**
  * @struct Slider
@@ -95,12 +106,24 @@ public:
     char seed[24] = "SEED";
     std::vector<Slider> sliders;
 
+    /**
+     * @brief quick on/off to display the Menu
+     */
+    bool setMenuState(){
+        if(m_menuState!=MenuState::MainMenu){
+             m_menuState = MenuState::MainMenu;
+             return true;
+        }else{
+            m_menuState = MenuState::None;
+            return false;
+        }
+    }
+
 private:
     std::shared_ptr<Core::Terrain> m_terrain;                      // Shared terrain from the app context
     std::unordered_map<SliderType, float> m_pendingSliderChanges; // Unordered map for storing changed values between two updates of GUI
     bool m_hasPendingChanges = false;                              // Flag indicating if slider values changed
     bool m_textBoxEditMode;
-
     bool m_showGUI;
 
     /**
@@ -108,4 +131,20 @@ private:
      * Note : The updates occur separately from the rendering
      */
     void m_renderGUI();
+
+
+    /**
+     * @brief Renders the main menu.
+     */
+    void m_renderMainMenu();
+    /**
+     * @brief Renders the settings window.
+     */
+    void m_renderSettingsWindow();
+    /**
+     * @brief Renders the key bindings window.
+     */
+    void m_renderKeyBindingsWindow();
+
+    MenuState m_menuState = MenuState::None;
 };

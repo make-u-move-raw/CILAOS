@@ -31,6 +31,7 @@ namespace Core
     void update();
 
     bool shouldClose() const;
+    bool m_windowClosed=false;
 
   private:
     WindowSpecification m_specs;

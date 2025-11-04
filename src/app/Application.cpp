@@ -67,6 +67,7 @@ void Application::run()
 
     lastTime = currentTime;
   }
+  m_window->destroy();
 }
 
 /**
@@ -77,7 +78,7 @@ void Application::stop()
   for (const std::unique_ptr<Layer> &layer : m_layers)
     layer->stop();
   m_isRunning = false;
-  m_window->destroy();
+  
 }
 
 Application &Application::getInstance()

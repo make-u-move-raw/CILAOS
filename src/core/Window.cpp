@@ -23,6 +23,8 @@ namespace Core
       SetWindowState(FLAG_VSYNC_HINT);
 
     SetTargetFPS(m_specs.targetFPS);
+    SetExitKey(KEY_NULL);
+
   }
 
   /**
@@ -41,6 +43,13 @@ namespace Core
   /**
    * @brief Destroy the window and terminates OpenGL context
    */
-  void Window::destroy() { CloseWindow(); }
+  void Window::destroy()
+  {
+    if (!m_windowClosed)
+    {
+      CloseWindow();
+      m_windowClosed = true;
+    }
+  }
 
 }
