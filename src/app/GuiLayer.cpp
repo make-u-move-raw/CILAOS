@@ -86,7 +86,7 @@ float getSeedFromString(const char *seedStr)
     return asciiSeed;
 }
 
-void GUILayer::renderGUI()
+void GUILayer::m_renderGUI()
 {
     int x = 90;
     int y = 50;
@@ -132,7 +132,7 @@ void GUILayer::renderGUI()
 void GUILayer::render()
 {
     if (m_showGUI)
-        renderGUI();
+        m_renderGUI();
 }
 
 void GUILayer::onEvent(Core::Event &event)

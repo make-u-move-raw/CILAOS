@@ -40,7 +40,7 @@ struct Slider
 };
 
 /**
- * @class GUI layze
+ * @class GUI layer
  * @brief The layer responsible for all the GUI informatations
  */
 class GUILayer : public Core::Layer
@@ -107,5 +107,5 @@ private:
      * @brief This function renders all the sliders and the GUI elements it includes the backpanel, sliders, buttons, text input
      * Note : The updates occur separately from the rendering
      */
-    void renderGUI();
+    void m_renderGUI();
 };
