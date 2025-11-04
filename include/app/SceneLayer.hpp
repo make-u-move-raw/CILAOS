@@ -1,9 +1,11 @@
 #pragma once
 
-#include "core/Event.hpp"
 #include "external/raylib/raylib.h"
 #include "external/raylib/raymath.h"
 #include "external/raylib/rlgl.h"
+
+#include "app/Context.hpp"
+#include "core/Event.hpp"
 #include "external/raylib/rlights.h"
 #include "core/Layer.hpp"
 #include "core/Terrain.hpp"
@@ -66,21 +68,43 @@ public:
    * @brief Called each time an event is triggered, all of which are keyboard and mouse inputs for now
    * @param event The event that is triggered
    */
-  virtual void onEvent(Core::Event &event) {}
+  virtual void onEvent(Core::Event &event) override;
+
+  /**
+   * @brief Called once initialized to link the app context (shared data) between all different layers
+   * @param context The context of the app
+   */
+  virtual void setContext(std::shared_ptr<Context> context) override
+  {
+    m_terrain = context->terrain;
+
+    if (m_terrain)
+    {
+      Vector3 target = m_terrain->getPos();
+      m_camera.target = target;
+      m_terrain->setSize(100);
+      m_terrain->generateCustomTerrain();
+      m_terrain->load();
+    }
+    else
+    {
+      std::cerr << "ERROR: Terrain not found in context!" << std::endl;
+    }
+  }
 
   /**
    * @brief Destruction of OpenGL elements (VAO & VBO) and window
    */
-  virtual void stop();
+  virtual void stop() override;
 
 private:
   bool m_rotating = false; // Flag for camera auto rotation around the model
 
-  Vector3 m_sunPos = {-15.0f, 30.0f, -15.0f};                // Position of the sun in world coords
-  Color m_sunColor = {255, 255, 255, 255};                   // Color of the sun
-  float m_sunIntensity = 1.0f;                               // Intensity of the sun
-  Core::Terrain m_terrain;                                   // Terrain object for the scene
-  Camera3D m_camera;                                         // Camera object
+  Vector3 m_sunPos = {-15.0f, 30.0f, -15.0f};
+  Color m_sunColor = {255, 255, 255, 255};
+  float m_sunIntensity = 1.0f;
+  std::shared_ptr<Core::Terrain> m_terrain = 0;              // Shared terrain from the app context
+  Camera3D m_camera = {0};                                   // Camera object
   CameraSpecification m_cameraSpecs = CameraSpecification(); // Specifications for the camera (settings)
 
   /**

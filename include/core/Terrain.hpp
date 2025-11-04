@@ -1,10 +1,13 @@
 #pragma once
 
 #include <vector>
-#include "core/PerlinGenerator.hpp"
+
 #include "external/raylib/raylib.h"
+
 #include "external/raylib/raymath.h"
 #include "external/raylib/rlgl.h"
+
+#include "core/PerlinGenerator.hpp"
 
 const float TERRAIN_COORDINATE_SIZE = 10.0f; // The size in world coordinates to display the terrain
 const int DEFAULT_TERRAIN_SIZE = 100;        // The default terrain size
@@ -25,18 +28,18 @@ namespace Core
   class Terrain
   {
   private:
-    Shader m_shader = LoadShader(TextFormat("src/core/shaders/terrain.vs", 330),
-                                 TextFormat("src/core/shaders/terrain.fs", 330)); // Shader for interacting with positions/textures/normals/colors of the terrain mesh
-    PerlinGenerator m_perlinGenerator = 0;                                        // Perlin generator object associated with the terrain
-    bool m_wireFrame = false;                                                     // Wireframe display flag
-    double m_time = 0.0;                                                          // The time associated with the class
-    Vector3 m_pos = {0.0f, 0.0f, 0.0f};                                           // The position of the terrain in world coordinates
-    Mesh m_mesh = {0};                                                            // The mesh of the terrain
-    Model m_model = {0};                                                          // The model of the terrain
-    int m_size = DEFAULT_TERRAIN_SIZE;                                            // The number of sub squares of the terrain (precision)
-    std::vector<float> m_baseHeights;                                             // The list of heights for each current vertex
-    std::vector<Color> m_colors;                                                  // The list of colors for each current vertex
-    bool m_generated = false;                                                     // If the terrain has been generated atleast once
+    Shader m_shader = {0}; // Shader for interacting with positions/textures/normals/colors of the terrain mesh
+    bool m_shaderLoaded = false;
+    PerlinGenerator m_perlinGenerator;  // Perlin generator object associated with the terrain  // Perlin generator (data for the terrain)
+    bool m_wireFrame = false;           // Wireframe display flag
+    double m_time = 0.0;                // The time associated with the class
+    Vector3 m_pos = {0.0f, 0.0f, 0.0f}; // The position of the terrain in world coordinates
+    Mesh m_mesh = {0};                  // The mesh of the terrain
+    Model m_model = {0};                // The model of the terrain
+    int m_size = DEFAULT_TERRAIN_SIZE;  // The number of sub squares of the terrain (precision)
+    std::vector<float> m_baseHeights;   // The list of heights for each current vertex
+    std::vector<Color> m_colors;        // The list of colors for each current vertex
+    bool m_generated = false;           // If the terrain has been generated atleast once
 
     /**
      * @brief Generate a color based on height and normal parameter of a given vertex
@@ -55,10 +58,23 @@ namespace Core
      * @return The normal vector of the vertex
      */
     Vector3 m_computeNormalAt(int i, int j);
+    unsigned int m_seed;
 
   public:
-    Terrain() { setSize(DEFAULT_TERRAIN_SIZE); }
-    Terrain(int size) { setSize(size); }
+    Terrain() : m_pos{0.0f, 0.0f, 0.0f},
+                m_wireFrame(false),
+                m_time(0.0),
+                m_generated(false)
+    {
+      setSize(DEFAULT_TERRAIN_SIZE);
+    }
+    Terrain(int size) : m_pos{0.0f, 0.0f, 0.0f},
+                        m_wireFrame(false),
+                        m_time(0.0),
+                        m_generated(false)
+    {
+      setSize(size);
+    }
 
     /**
      * @brief Main call function for generating terrain when a new precision is set
@@ -74,8 +90,13 @@ namespace Core
      * This method can become quite costly if a lot of vertices are generated :
      * don't call it too often try using `update(...)` instead
      */
-    void regenerateTerrain(const unsigned int newSeed);
+    void regenerateTerrain();
 
+    /**
+     * @brief setter for the m_seed
+     * @param seed
+     */
+    void setSeed(unsigned int seed) { this->m_seed = seed; }
     /**
      * @brief Update method to be called for physics or data management.
      *
@@ -197,5 +218,13 @@ namespace Core
      * @brief Change the render mode to wireFrame or normal
      */
     void switchRenderMode() { m_wireFrame = !m_wireFrame; }
+
+    // Setters for perlin noise
+    void setNoiseAmplitude(float amplitude) { m_perlinGenerator.setNoiseScale(amplitude); }
+    void setNoiseFrequency(float frequency) { m_perlinGenerator.setFrequency(frequency); }
+    void setNoiseOctaves(int octaves) { m_perlinGenerator.setOctaves(octaves); }
+    void setNoisePersistence(float persistence) { m_perlinGenerator.setPersistence(persistence); }
+    void setNoiseLacunarity(float lacunarity) { m_perlinGenerator.setLacunarity(lacunarity); }
   };
+
 }

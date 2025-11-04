@@ -104,10 +104,10 @@ namespace Core
     std::cout << "INFO: Generated custom terrain of side " << m_size << " and seed " << m_perlinGenerator.getSeed() << std::endl;
   }
 
-  void Terrain::regenerateTerrain(const unsigned int newSeed)
+  void Terrain::regenerateTerrain()
   {
     std::cout << "INFO: Regenerating terrain" << std::endl;
-    m_perlinGenerator.generateNewSeed(newSeed);
+    m_perlinGenerator.generateNewSeed(m_seed);
     if (!m_generated)
     {
       generateCustomTerrain();
@@ -148,7 +148,7 @@ namespace Core
       }
     }
 
-    std::cout << "INFO: Generated new terrain with seed : " << newSeed << std::endl;
+    std::cout << "INFO: Generated new terrain with seed : " << m_seed << std::endl;
     UpdateMeshBuffer(m_mesh, 0, m_mesh.vertices, m_mesh.vertexCount * 3 * sizeof(float), 0);
     UpdateMeshBuffer(m_mesh, 2, m_mesh.normals, m_mesh.vertexCount * 3 * sizeof(float), 0);
     UpdateMeshBuffer(m_mesh, 3, m_mesh.colors, m_mesh.vertexCount * 4 * sizeof(unsigned char), 0);
@@ -158,6 +158,12 @@ namespace Core
   {
     UploadMesh(&m_mesh, false);
     m_model = LoadModelFromMesh(m_mesh);
+    if (!m_shaderLoaded)
+    {
+      m_shader = LoadShader("src/core/shaders/terrain.vs",
+                            "src/core/shaders/terrain.fs");
+      m_shaderLoaded = true;
+    }
     m_generated = true;
   }
 
