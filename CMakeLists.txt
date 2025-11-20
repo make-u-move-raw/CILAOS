@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.31)
 set(PROJECT_NAME Cilaos)
+set(PROJECT_VERSION 0.0.0)
 
-project(${PROJECT_NAME} CXX)
+project(${PROJECT_NAME} ${PROJECT_VERSION} CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -30,19 +31,17 @@ endfunction()
 ####################################
 set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(BUILD_GAMES    OFF CACHE BOOL "" FORCE)
+set(BUILD_RAYGUI_EXAMPLES OFF CACHE BOOL "" FORCE)
 add_git_dependency(
     raylib
     https://github.com/raysan5/raylib.git
     5.5
 )
 
-# specific configfor raygui
-set(BUILD_RAYGUI_EXAMPLES OFF CACHE BOOL "" FORCE)
-FetchContent_Declare(raygui
+add_git_dependency(
+    raygui
     GIT_REPOSITORY https://github.com/raysan5/raygui.git
-    GIT_TAG        4.0
-    GIT_SHALLOW    TRUE
-    GIT_PROGRESS   TRUE
+    4.0
 )
 
 ####################################
