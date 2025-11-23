@@ -11,8 +11,8 @@ function Build-Project {
     if (-not (Test-Path "build")) {
         New-Item -ItemType Directory -Path "build" | Out-Null
     }
+    cmake -G "MinGW Makefiles" -B build
     Set-Location "build"
-    cmake ..
     cmake --build .
     Set-Location ..
 }
