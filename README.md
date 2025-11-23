@@ -43,6 +43,9 @@ For all the following commands concerning the app, choose the script to execute 
 
 Run the app with `./run.<sh|ps1>` (Can take a while the first time you build the project)
 
+If you are running on windows and you see an error about the rights to execute `run.ps1` run `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser` (more info [here](https://learn.microsoft.com/fr-fr/powershell/module/microsoft.powershell.core/about/about_execution_policies?view=powershell-7.5))
+
+
 #### 📌 **Specific commands**
 
 You can also run `./run.<sh|ps1> help` to get all available options when running the script with `./run.<sh|ps1> <option>`
